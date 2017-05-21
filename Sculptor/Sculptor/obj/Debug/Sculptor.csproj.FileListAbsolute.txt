@@ -1,1 +1,15 @@
 c:\users\asus\documents\visual studio 2015\Projects\Sculptor\Sculptor\bin\Debug\Sculptor.exe.config
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\bin\Debug\Sculptor.exe.config
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\bin\Debug\Sculptor.exe
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\bin\Debug\Sculptor.pdb
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.csprojResolveAssemblyReference.cache
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\MainWindow.g.cs
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\App.g.cs
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor_MarkupCompile.cache
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor_MarkupCompile.lref
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\MainWindow.baml
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.g.resources
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.Properties.Resources.resources
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.csproj.GenerateResource.Cache
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.exe
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.pdb

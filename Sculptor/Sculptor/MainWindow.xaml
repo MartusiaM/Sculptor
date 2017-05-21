@@ -5,8 +5,36 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Sculptor"
         mc:Ignorable="d"
-        Title="Sculptor" Height="350" Width="525">
+        Title="Sculptor" Height="550" Width="800">
+    
     <Grid>
+        <Menu IsMainMenu="True">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Click="NewSolid"/>
+                <MenuItem Header="_Open" Click="LoadSolid">
+                    <MenuItem.Icon>
+                        <Image Source="Open.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="_Save as..." Click="SaveSolidAs"/>
+                <MenuItem Header="_Save" Click="SaveSolid">
+                    <MenuItem.Icon>
+                        <Image Source="Save.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="_Exit" Click="Exit"/>
+            </MenuItem>
+            <MenuItem Header="_Help" Click="Help" />
+        </Menu>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
         
+        <!--kolumna pierwsza to panel, kolumna druga to okna w ktorym modelujemy bryle-->
+
     </Grid>
 </Window>
