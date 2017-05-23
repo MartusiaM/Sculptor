@@ -10,6 +10,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
@@ -21,10 +22,12 @@ namespace Sculptor
     public partial class MainWindow : Window
     {
         string _fileName { get; set; }
+        Grid _modelGrid;
         public MainWindow()
         {
             InitializeComponent();
             _fileName = null;
+            _modelGrid = new Grid();
         }
         private void Help(object sender, RoutedEventArgs e)
         {
@@ -37,25 +40,21 @@ namespace Sculptor
             Save(_fileName);
         }
         private void SaveSolidAs(object sender, RoutedEventArgs e)
-        {
-            //ObservableCollection<Point> nowe = new ObservableCollection<Point>();
-            //foreach (var p in points)
-            //{
-            //    nowe.Add(new Point(p.X, p.Y));
-            //}
-            
+        {            
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.Filter = "Text file (*.txt)|*.txt|C# file (*.cs)|*.cs";
+            dlg.Filter = "STL file (*.stl)|*.stl|All files (*.*)|*.*";
             if (dlg.ShowDialog() == true)
             {
                 _fileName = dlg.FileName;
-                Save(_fileName);
-                
+                Save(_fileName);               
             }
         }
 
         private void Save(string fileName)
         {
+            //----------------------------------------------------------------
+            //zapisywanie do pliku fileName
+            //----------------------------------------------------------------
             //FileStream fs = new FileStream(dlg.FileName, FileMode.Create);
             //BinaryFormatter formatter = new BinaryFormatter();
             //try
@@ -74,13 +73,14 @@ namespace Sculptor
         }
         private void LoadSolid(object sender, RoutedEventArgs e)
         {
-            //points.Clear();
 
-            //ObservableCollection<Point> nowe = new ObservableCollection<Point>();
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            dlg.Filter = "STL files (*.stl)|*.stl|All files (*.*)|*.*";
             if (dlg.ShowDialog() == true)
             {
+                //-------------------------------------------------------
+                //załadowanie informaccji z pliku
+                //--------------------------------------------------------
                 //FileStream fs = new FileStream(dlg.FileName, FileMode.Open);
                 //BinaryFormatter formatter = new BinaryFormatter();
                 //try
@@ -98,16 +98,23 @@ namespace Sculptor
                 //}
 
             }
-
-            //foreach (var el in nowe)
-            //{
-            //    Points nowy = new Points(el.X, el.Y);
-            //    points.Add(nowy);
-            //}
         }
         private void NewSolid(object sender, RoutedEventArgs e)
-        {
-            //tworzenie nowej bryly
+        {   
+            // Instantiate the dialog box
+            NewModelWindow dlg = new NewModelWindow();
+
+            // Configure the dialog box
+            dlg.Owner = this;
+            //dlg.DocumentMargin = this.documentTextBox.Margin;
+
+            // Open the dialog box modally 
+            dlg.ShowDialog();
+
+            if(dlg.DialogResult == true)
+            {
+                //tworzenie nowej bryly
+            }
         }
         private void Exit(object sender, RoutedEventArgs e)
         {

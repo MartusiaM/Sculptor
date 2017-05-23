@@ -13,3 +13,6 @@ C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.Propert
 C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.csproj.GenerateResource.Cache
 C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.exe
 C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.pdb
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\NewModelWindow.g.cs
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\GeneratedInternalTypeHelper.g.cs
+C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\NewModelWindow.baml
