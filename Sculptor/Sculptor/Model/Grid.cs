@@ -9,6 +9,8 @@ using System.Windows.Media.Media3D;
 
 namespace Sculptor.Model
 {
+    //WAŻNE: tablica w środku jest w rzeczywistości większa o 2 w każdym wymiarze, 
+    //ponieważ do poprawnego wygenerowania się siatki potrzebna jest otoczka z wyłączonych punktów.
     public class Grid : INotifyPropertyChanged
     {
         bool[,,] grid;
@@ -31,11 +33,11 @@ namespace Sculptor.Model
         {
             get
             {
-                return grid[i1, i2, i3];
+                return grid[i1 + 1, i2 + 1, i3 + 1];
             }
             set
             {
-                grid[i1, i2, i3] = value;
+                grid[i1 + 1, i2 + 1, i3 + 1] = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(grid)));
                 Model = GetModel();
             }
@@ -45,11 +47,12 @@ namespace Sculptor.Model
             Width = width;
             Height = height;
             Depth = depth;
-            grid = new bool[width, height, depth];
-            for (int i = 0; i < width; i++)
-                for (int j = 0; j < height; j++)
-                    for (int k = 0; k < depth; k++)
+            grid = new bool[width + 2, height + 2, depth + 2];
+            for (int i = 1; i < width; i++)
+                for (int j = 1; j < height; j++)
+                    for (int k = 1; k < depth; k++)
                         grid[i, j, k] = true;
+            model = GetModel();
         }
 
         public MeshGeometry3D GetModel()
@@ -57,19 +60,19 @@ namespace Sculptor.Model
             MeshGeometry3D model = new MeshGeometry3D();
             int vertexOffset = 0;
 
-            for (int x = 0; x < Width - 1; x++)
-                for (int y = 0; y < Height - 1; y++)
-                    for (int z = 0; z < Depth; z++)
+            for (int x = 0; x < Width + 1; x++)
+                for (int y = 0; y < Height + 1; y++)
+                    for (int z = 0; z < Depth + 1; z++)
                     {
                         int cubeIndex = GetCubeIndex(x, y, z);
                         vertexOffset = model.Positions.Count;
                         var allPossible = GetAllVertices(x, y, z);
                         var list = GetCubesVertices(x, y, z, edgeTable[cubeIndex], allPossible);
-                        model.Positions.Concat(list);
+                        list.ForEach(t => model.Positions.Add(t));
 
                         List<int> triangles = GetFaces(cubeIndex, allPossible, list);
                         triangles.ForEach(t => t += vertexOffset);
-                        model.TriangleIndices.Concat(triangles);
+                        triangles.ForEach(t => model.TriangleIndices.Add(t));
                         
                     }
 
@@ -104,7 +107,7 @@ namespace Sculptor.Model
                     selectedVertices.IndexOf(allVertices[triTable[index, i + 1]]),
                     selectedVertices.IndexOf(allVertices[triTable[index, i + 2]])
                 };
-                faces.Concat(new[] { vertices[0], vertices[1], vertices[1], vertices[2], vertices[2], vertices[0] });
+                faces.AddRange(new[] { vertices[0], vertices[1], vertices[1], vertices[2], vertices[2], vertices[0] });
             }
 
             return faces;

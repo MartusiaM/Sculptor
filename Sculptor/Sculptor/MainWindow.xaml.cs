@@ -21,13 +21,25 @@ namespace Sculptor
     /// </summary>
     public partial class MainWindow : Window
     {
-        string _fileName { get; set; }
-        Grid _modelGrid;
+        string fileName { get; set; }
+        public Model.Grid ModelGrid { get; set; }
+        public PerspectiveCamera Camera { get; set; }
         public MainWindow()
         {
+            //niestety nic się jeszcze nie wyświetla, coś nie działa z bindowaniem modelu :(
+            fileName = null;
+            ModelGrid = new Model.Grid(10, 10, 10);
+            Camera = new PerspectiveCamera();
+            Camera.Position = new Point3D(15, 15, 15);
+            Camera.LookDirection = new Vector3D(-1, -1, -1);
+            Camera.FieldOfView = 45;
+            Camera.UpDirection = new Vector3D(0, 1, 0);
+            Camera.NearPlaneDistance = 1;
+            Camera.FarPlaneDistance = 20;
             InitializeComponent();
-            _fileName = null;
-            _modelGrid = new Grid();
+            ModelGrid[1, 1, 1] = false;
+            
+
         }
         private void Help(object sender, RoutedEventArgs e)
         {
@@ -37,7 +49,7 @@ namespace Sculptor
 
         private void SaveSolid(object sender, RoutedEventArgs e)
         {
-            Save(_fileName);
+            Save(fileName);
         }
         private void SaveSolidAs(object sender, RoutedEventArgs e)
         {            
@@ -45,8 +57,8 @@ namespace Sculptor
             dlg.Filter = "STL file (*.stl)|*.stl|All files (*.*)|*.*";
             if (dlg.ShowDialog() == true)
             {
-                _fileName = dlg.FileName;
-                Save(_fileName);               
+                fileName = dlg.FileName;
+                Save(fileName);               
             }
         }
 
@@ -122,8 +134,8 @@ namespace Sculptor
             if (result == MessageBoxResult.Yes)
             {
                 //save changes
-                if (_fileName != null)
-                    Save(_fileName);
+                if (fileName != null)
+                    Save(fileName);
                 else SaveSolidAs(sender, e);
             }
 
