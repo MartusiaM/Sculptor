@@ -11,7 +11,7 @@ namespace Sculptor.Model
 {
     //WAŻNE: tablica w środku jest w rzeczywistości większa o 2 w każdym wymiarze, 
     //ponieważ do poprawnego wygenerowania się siatki potrzebna jest otoczka z wyłączonych punktów.
-    public class Grid : INotifyPropertyChanged
+    public class ModelGrid : INotifyPropertyChanged
     {
         bool[,,] grid;
         MeshGeometry3D model;
@@ -42,7 +42,7 @@ namespace Sculptor.Model
                 Model = GetModel();
             }
         }
-        public Grid (int width, int height, int depth)
+        public ModelGrid (int width, int height, int depth)
         {
             Width = width;
             Height = height;

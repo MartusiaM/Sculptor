@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sculptor.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,13 +23,16 @@ namespace Sculptor
     public partial class MainWindow : Window
     {
         string fileName { get; set; }
-        public Model.Grid ModelGrid { get; set; }
+        public ModelGrid ModelGrid { get; set; }
         public PerspectiveCamera Camera { get; set; }
+        public Material ModelMaterial { get; set; }
         public MainWindow()
         {
-            //niestety nic się jeszcze nie wyświetla, coś nie działa z bindowaniem modelu :(
+            //niestety nic się jeszcze nie wyświetla, binduje ok ale nie chce się pokazać :(
+            InitializeComponent();
             fileName = null;
-            ModelGrid = new Model.Grid(10, 10, 10);
+            ModelGrid = new Model.ModelGrid(10, 10, 10);
+            ModelMaterial = new DiffuseMaterial(Brushes.Red);
             Camera = new PerspectiveCamera();
             Camera.Position = new Point3D(15, 15, 15);
             Camera.LookDirection = new Vector3D(-1, -1, -1);
@@ -36,10 +40,7 @@ namespace Sculptor
             Camera.UpDirection = new Vector3D(0, 1, 0);
             Camera.NearPlaneDistance = 1;
             Camera.FarPlaneDistance = 20;
-            InitializeComponent();
-            ModelGrid[1, 1, 1] = false;
-            
-
+            viewport.DataContext = this;
         }
         private void Help(object sender, RoutedEventArgs e)
         {
