@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
 namespace Sculptor.Model
@@ -14,12 +15,12 @@ namespace Sculptor.Model
     public class ModelGrid : INotifyPropertyChanged
     {
         bool[,,] grid;
-        MeshGeometry3D model;
+        ModelVisual3D model;
         public int Width { get; set; }
         public int Height { get; set; }
-        public int Depth { get; set; }
+        public int Length { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
-        public MeshGeometry3D Model
+        public ModelVisual3D Model
         {
             get { return model; }
             private set
@@ -42,40 +43,43 @@ namespace Sculptor.Model
                 Model = GetModel();
             }
         }
-        public ModelGrid (int width, int height, int depth)
+        public ModelGrid (int width, int height, int length)
         {
             Width = width;
             Height = height;
-            Depth = depth;
-            grid = new bool[width + 2, height + 2, depth + 2];
+            Length = length;
+            grid = new bool[width + 2, height + 2, length + 2];
             for (int i = 1; i < width; i++)
                 for (int j = 1; j < height; j++)
-                    for (int k = 1; k < depth; k++)
+                    for (int k = 1; k < length; k++)
                         grid[i, j, k] = true;
             model = GetModel();
         }
 
-        public MeshGeometry3D GetModel()
+        public ModelVisual3D GetModel()
         {
-            MeshGeometry3D model = new MeshGeometry3D();
+            MeshGeometry3D geometry = new MeshGeometry3D();
             int vertexOffset = 0;
 
             for (int x = 0; x < Width + 1; x++)
                 for (int y = 0; y < Height + 1; y++)
-                    for (int z = 0; z < Depth + 1; z++)
+                    for (int z = 0; z < Length + 1; z++)
                     {
                         int cubeIndex = GetCubeIndex(x, y, z);
-                        vertexOffset = model.Positions.Count;
+                        vertexOffset = geometry.Positions.Count;
                         var allPossible = GetAllVertices(x, y, z);
                         var list = GetCubesVertices(x, y, z, edgeTable[cubeIndex], allPossible);
-                        list.ForEach(t => model.Positions.Add(t));
+                        list.ForEach(t => geometry.Positions.Add(t));
 
                         List<int> triangles = GetFaces(cubeIndex, allPossible, list);
                         triangles.ForEach(t => t += vertexOffset);
-                        triangles.ForEach(t => model.TriangleIndices.Add(t));
+                        triangles.ForEach(t => geometry.TriangleIndices.Add(t));
                         
                     }
-
+            ModelVisual3D model = new ModelVisual3D();
+            Model3D content = new GeometryModel3D(geometry, new DiffuseMaterial(Brushes.Red));
+          
+            model.Content = content;
             return model;
         }
 

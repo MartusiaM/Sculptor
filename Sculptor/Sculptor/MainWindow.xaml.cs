@@ -28,19 +28,23 @@ namespace Sculptor
         public Material ModelMaterial { get; set; }
         public MainWindow()
         {
-            //niestety nic się jeszcze nie wyświetla, binduje ok ale nie chce się pokazać :(
             InitializeComponent();
+            //niestety nic się jeszcze nie wyświetla, binduje ok ale nie chce się pokazać :(
             fileName = null;
             ModelGrid = new Model.ModelGrid(10, 10, 10);
             ModelMaterial = new DiffuseMaterial(Brushes.Red);
             Camera = new PerspectiveCamera();
-            Camera.Position = new Point3D(15, 15, 15);
-            Camera.LookDirection = new Vector3D(-1, -1, -1);
+            Camera.Position = new Point3D(12, 0, 12);
+            Camera.LookDirection = new Vector3D(-1, 0, -1);
             Camera.FieldOfView = 45;
             Camera.UpDirection = new Vector3D(0, 1, 0);
             Camera.NearPlaneDistance = 1;
             Camera.FarPlaneDistance = 20;
-            viewport.DataContext = this;
+
+            DataContext = this;
+            //viewport.DataContext = this;
+            //bool b = viewport.IsLoaded;
+            
         }
         private void Help(object sender, RoutedEventArgs e)
         {

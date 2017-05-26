@@ -25,7 +25,7 @@ namespace Sculptor
         private double _width;
         private double _height;
         private double _length;
-        public string Width
+        public string NewWidth
         {
             get { return _width.ToString(); }
             set
@@ -33,11 +33,11 @@ namespace Sculptor
                 if (value != _width.ToString())
                 {
                     _width = Double.Parse(value);
-                    PropertyChanged(this, new PropertyChangedEventArgs("Width"));
+                    PropertyChanged(this, new PropertyChangedEventArgs(nameof(_width)));
                 }
             }
         }
-        public string Height
+        public string NewHeight
         {
             get { return _height.ToString(); }
             set
@@ -45,11 +45,11 @@ namespace Sculptor
                 if (value != _height.ToString())
                 {
                     _height = Double.Parse(value);
-                    PropertyChanged(this, new PropertyChangedEventArgs("Height"));
+                    PropertyChanged(this, new PropertyChangedEventArgs(nameof(_height)));
                 }
             }
         }
-        public string Length
+        public string NewLength
         {
             get { return _length.ToString(); }
             set
@@ -57,7 +57,7 @@ namespace Sculptor
                 if (value != _length.ToString())
                 {
                     _length = Double.Parse(value);
-                    PropertyChanged(this, new PropertyChangedEventArgs("Length"));
+                    PropertyChanged(this, new PropertyChangedEventArgs(nameof(_length)));
                 }
             }
         }
