@@ -34,8 +34,11 @@ namespace Sculptor
             ModelGrid = new Model.ModelGrid(10, 10, 10);
             ModelMaterial = new DiffuseMaterial(Brushes.Red);
             Camera = new PerspectiveCamera();
-            Camera.Position = new Point3D(12, 0, 12);
-            Camera.LookDirection = new Vector3D(-1, 0, -1);
+
+            //Camera.Position = new Point3D(12, 0, 12);
+            //Camera.LookDirection = new Vector3D(-1, 0, -1);
+            Camera.Position = new Point3D(6, 0, -15);
+            Camera.LookDirection = new Vector3D(0, 0, 1);
             Camera.FieldOfView = 45;
             Camera.UpDirection = new Vector3D(0, 1, 0);
             Camera.NearPlaneDistance = 1;
@@ -46,6 +49,7 @@ namespace Sculptor
             //bool b = viewport.IsLoaded;
             
         }
+
         private void Help(object sender, RoutedEventArgs e)
         {
             string helpText = "This application gives user a chance to try his hand in curving. With a use of mouse one can change the shape of a shown figure. \n\nAuthors: Marta Marciszewicz, Stanisław Wasilkowski ";

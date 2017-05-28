@@ -20,6 +20,9 @@ namespace Sculptor.Model
         public int Height { get; set; }
         public int Length { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
+        public MeshGeometry3D pptrojGem { get; set; }
+        public DiffuseMaterial ModelMaterial { get; set; }
+        public MeshGeometry3D modelGrid { get; set; }
         public ModelVisual3D Model
         {
             get { return model; }
@@ -54,6 +57,187 @@ namespace Sculptor.Model
                     for (int k = 1; k < length; k++)
                         grid[i, j, k] = true;
             model = GetModel();
+            ModelMaterial = GetMaterial();
+
+            pptrojGem = getTroj();
+            modelGrid = getGrid();
+        }
+
+        MeshGeometry3D getGrid()
+        {
+            MeshGeometry3D geometry = new MeshGeometry3D();
+            int vertexOffset = 0;
+
+            for (int x = 0; x < Width + 1; x++)
+                for (int y = 0; y < Height + 1; y++)
+                    for (int z = 0; z < Length + 1; z++)
+                    {
+                        int cubeIndex = GetCubeIndex(x, y, z);
+                        vertexOffset = geometry.Positions.Count;
+                        var allPossible = GetAllVertices(x, y, z);
+                        var list = GetCubesVertices(x, y, z, edgeTable[cubeIndex], allPossible);
+                        list.ForEach(t => geometry.Positions.Add(t));
+
+                        List<int> triangles = GetFaces(cubeIndex, allPossible, list);
+                        triangles.ForEach(t => t += vertexOffset);
+                        triangles.ForEach(t => geometry.TriangleIndices.Add(t));
+
+                    }
+
+            return geometry;
+        }
+
+        DiffuseMaterial GetMaterial()
+        {
+            DiffuseMaterial material = new DiffuseMaterial();
+
+            SolidColorBrush brush = new SolidColorBrush();
+            brush.Color = Color.FromRgb(255, 0, 0);
+            brush.Opacity = 1.0;
+            material.Brush = brush;
+
+            return material;
+        }
+
+        MeshGeometry3D getTroj()
+        {
+            MeshGeometry3D side1Plane = new MeshGeometry3D();
+
+            side1Plane.Positions.Add(new Point3D(-0.5, -0.5, -0.5));
+            side1Plane.Positions.Add(new Point3D(-0.5, 0.5, -0.5));
+            side1Plane.Positions.Add(new Point3D(0.5, 0.5, -0.5));
+
+            side1Plane.Positions.Add(new Point3D(0.5, 0.5, -0.5));
+            side1Plane.Positions.Add(new Point3D(0.5, -0.5, -0.5));
+            side1Plane.Positions.Add(new Point3D(-0.5, -0.5, -0.5));
+
+            side1Plane.Positions.Add(new Point3D(-0.5, -0.5, -0.5));
+            side1Plane.Positions.Add(new Point3D(-0.5, 0.5, -0.5));
+            side1Plane.Positions.Add(new Point3D(-0.5, 0.5, 0.5));
+
+            side1Plane.Positions.Add(new Point3D(-0.5, 0.5, 0.5));
+            side1Plane.Positions.Add(new Point3D(-0.5, -0.5, 0.5));
+            side1Plane.Positions.Add(new Point3D(-0.5, -0.5, -0.5));
+
+            side1Plane.Positions.Add(new Point3D(-0.5, -0.5, 0.5));
+            side1Plane.Positions.Add(new Point3D(-0.5, 0.5, 0.5));    
+            side1Plane.Positions.Add(new Point3D(0.5, 0.5, 0.5));
+
+            side1Plane.Positions.Add(new Point3D(0.5, 0.5, 0.5));
+            side1Plane.Positions.Add(new Point3D(0.5, -0.5, 0.5));
+            side1Plane.Positions.Add(new Point3D(-0.5, -0.5, 0.5));
+
+            side1Plane.Positions.Add(new Point3D(0.5, -0.5, 0.5));
+            side1Plane.Positions.Add(new Point3D(0.5, 0.5, 0.5));
+            side1Plane.Positions.Add(new Point3D(0.5, 0.5, -0.5));
+
+            side1Plane.Positions.Add(new Point3D(0.5, 0.5, -0.5));
+            side1Plane.Positions.Add(new Point3D(0.5, -0.5, -0.5));
+            side1Plane.Positions.Add(new Point3D(0.5, -0.5, 0.5));
+
+            //-----------
+            side1Plane.Positions.Add(new Point3D(-0.5, -0.5, 0.5));
+            side1Plane.Positions.Add(new Point3D(0.5, -0.5, 0.5));
+            side1Plane.Positions.Add(new Point3D(0.5, -0.5, -0.5));
+
+            side1Plane.Positions.Add(new Point3D(0.5, -0.5, -0.5));
+            side1Plane.Positions.Add(new Point3D(-0.5, -0.5, -0.5));
+            side1Plane.Positions.Add(new Point3D(0.5, -0.5, 0.5));
+
+            side1Plane.Positions.Add(new Point3D(0.5, 0.5, 0.5));
+            side1Plane.Positions.Add(new Point3D(0.5, 0.5, -0.5));
+            side1Plane.Positions.Add(new Point3D(-0.5, 0.5, -0.5));
+
+            side1Plane.Positions.Add(new Point3D(-0.5, 0.5, -0.5));
+            side1Plane.Positions.Add(new Point3D(-0.5, 0.5, 0.5));
+            side1Plane.Positions.Add(new Point3D(0.5, 0.5, 0.5));
+            
+
+            side1Plane.TriangleIndices.Add(0);
+            side1Plane.TriangleIndices.Add(1);
+            side1Plane.TriangleIndices.Add(2);
+            side1Plane.TriangleIndices.Add(3);
+            side1Plane.TriangleIndices.Add(4);
+            side1Plane.TriangleIndices.Add(5);
+            side1Plane.TriangleIndices.Add(6);
+            side1Plane.TriangleIndices.Add(7);
+            side1Plane.TriangleIndices.Add(8);
+            side1Plane.TriangleIndices.Add(9);
+            side1Plane.TriangleIndices.Add(10);
+            side1Plane.TriangleIndices.Add(11);
+            side1Plane.TriangleIndices.Add(12);
+            side1Plane.TriangleIndices.Add(13);
+            side1Plane.TriangleIndices.Add(14);
+            side1Plane.TriangleIndices.Add(15);
+            side1Plane.TriangleIndices.Add(16);
+            side1Plane.TriangleIndices.Add(17);
+            side1Plane.TriangleIndices.Add(18);
+            side1Plane.TriangleIndices.Add(19);
+            side1Plane.TriangleIndices.Add(20);
+            side1Plane.TriangleIndices.Add(21);
+            side1Plane.TriangleIndices.Add(22);
+            side1Plane.TriangleIndices.Add(23);
+            side1Plane.TriangleIndices.Add(24);
+            side1Plane.TriangleIndices.Add(25);
+            side1Plane.TriangleIndices.Add(26);
+            side1Plane.TriangleIndices.Add(27);
+            side1Plane.TriangleIndices.Add(28);
+            side1Plane.TriangleIndices.Add(29);
+            side1Plane.TriangleIndices.Add(30);
+            side1Plane.TriangleIndices.Add(31);
+            side1Plane.TriangleIndices.Add(32);
+            side1Plane.TriangleIndices.Add(33);
+            side1Plane.TriangleIndices.Add(34);
+            side1Plane.TriangleIndices.Add(35);
+
+            side1Plane.Normals.Add(new Vector3D(0, 0, 1));
+            side1Plane.Normals.Add(new Vector3D(0, 0, 1));
+            side1Plane.Normals.Add(new Vector3D(0, 0, 1));
+            side1Plane.Normals.Add(new Vector3D(0, 0, 1));
+            side1Plane.Normals.Add(new Vector3D(0, 0, 1));
+            side1Plane.Normals.Add(new Vector3D(0, 0, 1));
+
+            side1Plane.Normals.Add(new Vector3D(1, 0, 0));
+            side1Plane.Normals.Add(new Vector3D(1, 0, 0));
+            side1Plane.Normals.Add(new Vector3D(1, 0, 0));
+            side1Plane.Normals.Add(new Vector3D(1, 0, 0));
+            side1Plane.Normals.Add(new Vector3D(1, 0, 0));
+            side1Plane.Normals.Add(new Vector3D(1, 0, 0));
+
+            side1Plane.Normals.Add(new Vector3D(0, 0, -1));
+            side1Plane.Normals.Add(new Vector3D(0, 0, -1));
+            side1Plane.Normals.Add(new Vector3D(0, 0, -1));
+            side1Plane.Normals.Add(new Vector3D(0, 0, -1));
+            side1Plane.Normals.Add(new Vector3D(0, 0, -1));
+            side1Plane.Normals.Add(new Vector3D(0, 0, -1));
+
+            side1Plane.Normals.Add(new Vector3D(-1, 0, 0));
+            side1Plane.Normals.Add(new Vector3D(-1, 0, 0));
+            side1Plane.Normals.Add(new Vector3D(-1, 0, 0));
+            side1Plane.Normals.Add(new Vector3D(-1, 0, 0));
+            side1Plane.Normals.Add(new Vector3D(-1, 0, 0));
+            side1Plane.Normals.Add(new Vector3D(-1, 0, 0));
+
+            side1Plane.Normals.Add(new Vector3D(0, 1, 0));
+            side1Plane.Normals.Add(new Vector3D(0, 1, 0));
+            side1Plane.Normals.Add(new Vector3D(0, 1, 0));
+            side1Plane.Normals.Add(new Vector3D(0, 1, 0));
+            side1Plane.Normals.Add(new Vector3D(0, 1, 0));
+            side1Plane.Normals.Add(new Vector3D(0, 1, 0));
+
+            side1Plane.Normals.Add(new Vector3D(0, -1, 0));
+            side1Plane.Normals.Add(new Vector3D(0, -1, 0));
+            side1Plane.Normals.Add(new Vector3D(0, -1, 0));
+            side1Plane.Normals.Add(new Vector3D(0, -1, 0));
+            side1Plane.Normals.Add(new Vector3D(0, -1, 0));
+            side1Plane.Normals.Add(new Vector3D(0, -1, 0));
+
+
+
+
+
+            //return new GeometryModel3D(side1Plane, material);
+            return side1Plane;
         }
 
         public ModelVisual3D GetModel()
