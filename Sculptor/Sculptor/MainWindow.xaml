@@ -7,7 +7,7 @@
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="Sculptor.MainWindow" x:Name="Window"
         mc:Ignorable="d"
-        Title="Sculptor" Height="550" Width="800">
+        Title="Sculptor" Height="550" Width="800" KeyDown="Window_KeyDown">
 
     <Grid Background="#f0f0f0">
         <Grid.ColumnDefinitions>
@@ -45,7 +45,7 @@
         <Canvas Grid.Column="1" Grid.Row="1" Name="canvas">
             <Viewport3D x:Name="viewport" Camera="{Binding Camera}" Height="{Binding ActualHeight, ElementName=canvas}" Width="{Binding ActualWidth, ElementName=canvas}">
                 <Viewport3D.Children>
-                    <ModelVisual3D>
+                    <ModelVisual3D x:Name="_model">
                         <ModelVisual3D.Content>
                             <Model3DGroup>
                                 <Model3DGroup.Children>
