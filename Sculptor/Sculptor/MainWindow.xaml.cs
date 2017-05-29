@@ -22,6 +22,10 @@ namespace Sculptor
     /// </summary>
     public partial class MainWindow : Window
     {
+        float moveit = 1;//kat o jaki obracamy przy jednorazowym nacisnieciu strzalki
+        AxisAngleRotation3D xAxis;
+        AxisAngleRotation3D yAxis;
+        Transform3DGroup transforms;
         string fileName { get; set; }
         public ModelGrid ModelGrid { get; set; }
         public PerspectiveCamera Camera { get; set; }
@@ -37,10 +41,44 @@ namespace Sculptor
             Camera.FieldOfView = 45;
             Camera.UpDirection = new Vector3D(0, 1, 0);
             Camera.NearPlaneDistance = 1;
-            Camera.FarPlaneDistance = 20;
+            Camera.FarPlaneDistance = 40;
+
+            //obrot wokol punktu (0,0,0)
+            xAxis= new AxisAngleRotation3D(new Vector3D(1, 0, 0), 0);
+            yAxis = new AxisAngleRotation3D(new Vector3D(0, 1, 0), 0);
+            transforms = new Transform3DGroup();
+            transforms.Children.Add(new RotateTransform3D(xAxis));
+            transforms.Children.Add(new RotateTransform3D(yAxis));
+            _model.Transform = transforms;
+
 
             DataContext = this;
 
+        }
+
+        //poruszanie obiektem
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Up)
+            {
+                xAxis.Angle -= moveit;
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Down)
+            {
+                xAxis.Angle += moveit;
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Right)
+            {
+                yAxis.Angle += moveit;
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Left)
+            {
+                yAxis.Angle -= moveit;
+                e.Handled = true;
+            }
         }
 
         private void Help(object sender, RoutedEventArgs e)
