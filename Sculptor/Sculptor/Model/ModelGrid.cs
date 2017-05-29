@@ -50,9 +50,9 @@ namespace Sculptor.Model
             Height = height;
             Length = length;
             grid = new bool[width + 2, height + 2, length + 2];
-            for (int i = 1; i < width; i++)
-                for (int j = 1; j < height; j++)
-                    for (int k = 1; k < length; k++)
+            for (int i = 1; i < width + 1; i++)
+                for (int j = 1; j < height + 1; j++)
+                    for (int k = 1; k < length + 1; k++)
                         grid[i, j, k] = true;
             model = GetModel();
             ModelMaterial = GetMaterial();
@@ -123,17 +123,35 @@ namespace Sculptor.Model
             {
                 if (triTable[index, i] < 0)
                     break;
+                Point3D v1 = allVertices[triTable[index, i]], v2 = allVertices[triTable[index, i + 1]], v3 = allVertices[triTable[index, i + 2]];
                 int[] vertices = new[] 
                 {
-                    selectedVertices.IndexOf(allVertices[triTable[index, i]]),
-                    selectedVertices.IndexOf(allVertices[triTable[index, i + 1]]),
-                    selectedVertices.IndexOf(allVertices[triTable[index, i + 2]])
+                    selectedVertices.IndexOf(v1),
+                    selectedVertices.IndexOf(v2),
+                    selectedVertices.IndexOf(v3)
                 };
-                faces.AddRange(new[] { vertices[0], vertices[1], vertices[2] });
+                Vector3D toCentre = new Vector3D(-v1.X, -v1.Y, -v1.Z);
+                toCentre.Normalize();
+                Vector3D normal = CalculateNormal(v1, v2, v3);
+                var dot = Vector3D.DotProduct(normal, toCentre);
+
+                if (dot > 0)
+                    vertices = vertices.Reverse().ToArray();
+                faces.AddRange(vertices);
+
             }
 
             return faces;
         }
+
+        Vector3D CalculateNormal(Point3D a, Point3D b, Point3D c)
+        {
+            Vector3D A = new Vector3D(b.X - a.X, b.Y - a.Y, b.Z - a.Z);
+            Vector3D B = new Vector3D(c.X - a.X, c.Y - a.Y, c.Z - a.Z);
+            Vector3D normal = Vector3D.CrossProduct(A, B);
+            normal.Normalize();
+            return normal;
+        } 
 
         Point3D[] GetAllVertices(int x, int y, int z, Point3D[] points)
         {
