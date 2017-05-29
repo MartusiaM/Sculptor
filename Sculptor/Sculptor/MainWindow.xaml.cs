@@ -1,7 +1,12 @@
 ﻿using Sculptor.Model;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,21 +25,66 @@ namespace Sculptor
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        //obracanie modelu
         float moveit = 1;//kat o jaki obracamy przy jednorazowym nacisnieciu strzalki
         AxisAngleRotation3D xAxis;
         AxisAngleRotation3D yAxis;
         Transform3DGroup transforms;
+        //wczytywanie modelu z pliku
         string fileName { get; set; }
-        public ModelGrid ModelGrid { get; set; }
+
+        //narzedzie
+        private ObservableCollection<int> toolsSizes = new ObservableCollection<int>();
+        public ObservableCollection<int> ToolsSizes
+        {
+            get { return toolsSizes; }
+            set { toolsSizes = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(toolsSizes))); }
+        }
+        private int selectedSize;
+        public int SelectedSize
+        {
+            get { return selectedSize; }
+            set { selectedSize = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(selectedSize))); }
+        }
+
+        ModelGrid _modelGrid;
+        public ModelGrid ModelGrid
+        {
+            get { return _modelGrid; }
+            set
+            {
+                if (value != _modelGrid)
+                {
+                    _modelGrid = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(_modelGrid)));
+                }
+            }
+        }
         public PerspectiveCamera Camera { get; set; }
+
+        //-----------------------------
+        public double ModelWidth { get; set; }
+        public double ModelHeight { get; set; }
+        public double ModelLength { get; set; }
+        //-------------------------
         public MainWindow()
         {
             InitializeComponent();
             //niestety nic się jeszcze nie wyświetla, binduje ok ale nie chce się pokazać :(
             fileName = null;
             ModelGrid = new Model.ModelGrid(5, 5, 5);
+            //ModelGrid = new ModelGrid();
+
+            ModelWidth = 10;
+            ModelHeight = 10;
+            ModelLength = 10;
+
             Camera = new PerspectiveCamera();
             Camera.Position = new Point3D(12, 12, 12);
             Camera.LookDirection = new Vector3D(-1, -1, -1);
@@ -51,9 +101,17 @@ namespace Sculptor
             transforms.Children.Add(new RotateTransform3D(yAxis));
             _model.Transform = transforms;
 
+            GenerateTools();
+            SelectedSize = 1;
 
             DataContext = this;
 
+        }
+
+        void GenerateTools()
+        {
+            for(int i=1;i<=10;i++)
+                ToolsSizes.Add(i);
         }
 
         //poruszanie obiektem
@@ -94,7 +152,7 @@ namespace Sculptor
         private void SaveSolidAs(object sender, RoutedEventArgs e)
         {            
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.Filter = "STL file (*.stl)|*.stl|All files (*.*)|*.*";
+            //dlg.Filter = "STL file (*.stl)|*.stl|All files (*.*)|*.*";
             if (dlg.ShowDialog() == true)
             {
                 fileName = dlg.FileName;
@@ -104,50 +162,53 @@ namespace Sculptor
 
         private void Save(string fileName)
         {
-            //----------------------------------------------------------------
             //zapisywanie do pliku fileName
-            //----------------------------------------------------------------
-            //FileStream fs = new FileStream(dlg.FileName, FileMode.Create);
-            //BinaryFormatter formatter = new BinaryFormatter();
-            //try
-            //{
-            //    formatter.Serialize(fs, nowe);
-            //}
-            //catch (SerializationException exc)
-            //{
-            //    Console.WriteLine("Failed to serialize. Reason: " + exc.Message);
-            //    throw;
-            //}
-            //finally
-            //{
-            //    fs.Close();
-            //}
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream(fileName,
+                                     FileMode.Create,
+                                     FileAccess.Write, FileShare.None);
+            try
+            {
+                formatter.Serialize(stream, _modelGrid);
+            }
+            catch (SerializationException exc)
+            {
+                Console.WriteLine("Failed to serialize. Reason: " + exc.Message);
+                throw;
+            }
+            finally
+            {
+                stream.Close();
+            }
+
         }
         private void LoadSolid(object sender, RoutedEventArgs e)
         {
 
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = "STL files (*.stl)|*.stl|All files (*.*)|*.*";
+            //dlg.Filter = "STL files (*.stl)|*.stl|All files (*.*)|*.*";
             if (dlg.ShowDialog() == true)
             {
-                //-------------------------------------------------------
                 //załadowanie informaccji z pliku
-                //--------------------------------------------------------
-                //FileStream fs = new FileStream(dlg.FileName, FileMode.Open);
-                //BinaryFormatter formatter = new BinaryFormatter();
-                //try
-                //{
-                //    nowe = (ObservableCollection<Point>)formatter.Deserialize(fs);
-                //}
-                //catch (SerializationException exc)
-                //{
-                //    Console.WriteLine("Failed to serialize. Reason: " + exc.Message);
-                //    throw;
-                //}
-                //finally
-                //{
-                //    fs.Close();
-                //}
+                IFormatter formatter = new BinaryFormatter();
+                Stream stream = new FileStream(dlg.FileName,
+                                          FileMode.Open,
+                                          FileAccess.Read,
+                                          FileShare.Read);
+                
+                try
+                {
+                    ModelGrid = (ModelGrid)formatter.Deserialize(stream);
+                }
+                catch (SerializationException exc)
+                {
+                    Console.WriteLine("Failed to deserialize. Reason: " + exc.Message);
+                    throw;
+                }
+                finally
+                {
+                    stream.Close();
+                }
 
             }
         }
@@ -158,6 +219,9 @@ namespace Sculptor
 
             // Configure the dialog box
             dlg.Owner = this;
+            dlg.NewHeight = ModelHeight.ToString();
+            dlg.NewLength = ModelLength.ToString();
+            dlg.NewWidth = ModelWidth.ToString();
             //dlg.DocumentMargin = this.documentTextBox.Margin;
 
             // Open the dialog box modally 
@@ -166,6 +230,14 @@ namespace Sculptor
             if(dlg.DialogResult == true)
             {
                 //tworzenie nowej bryly
+                int width = (int)(double.Parse(dlg.NewWidth) * 2);
+                int height = (int)(double.Parse(dlg.NewHeight) * 2);
+                int length = (int)(double.Parse(dlg.NewLength) * 2);
+
+                //ModelGrid = new ModelGrid(width, height, length);
+                ModelGrid = new Model.ModelGrid(5, 5, 5);
+               // ModelGrid = new ModelGrid(width, height, length);
+
             }
         }
         private void Exit(object sender, RoutedEventArgs e)

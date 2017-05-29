@@ -54,7 +54,7 @@
                                     <DirectionalLight Color="White" Direction="-1,-1,-3" />
 
                                     <!-- Define a red cone. -->
-                                    <GeometryModel3D Geometry="{Binding ModelGrid.Model, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" Material="{Binding ModelGrid.ModelMaterial, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}">
+                                    <GeometryModel3D Geometry="{Binding ModelGrid.Model, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" Material="{Binding ModelGrid.ModelMaterial, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}">
                                         
                                     </GeometryModel3D>
                                 </Model3DGroup.Children>
@@ -75,7 +75,7 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" TextWrapping="WrapWithOverflow" HorizontalAlignment="Left" Margin="3,5,3,5" FontSize="10"><Run Text="Choose the size of a tool from the list below:"/></TextBlock>
-                    <ComboBox Grid.Row="1" Margin="3"/>
+                    <ComboBox Grid.Row="1" Margin="3" ItemsSource="{Binding ToolsSizes}" SelectedItem="{Binding SelectedSize}" Focusable="False" />
                 </Grid>
             </GroupBox>
         </StackPanel>

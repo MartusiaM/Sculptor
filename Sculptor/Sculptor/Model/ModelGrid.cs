@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -12,7 +15,8 @@ namespace Sculptor.Model
 {
     //WAŻNE: tablica w środku jest w rzeczywistości większa o 2 w każdym wymiarze, 
     //ponieważ do poprawnego wygenerowania się siatki potrzebna jest otoczka z wyłączonych punktów.
-    [Serializable] public class ModelGrid : INotifyPropertyChanged
+    [Serializable]
+    public class ModelGrid : INotifyPropertyChanged, ISerializable
     {
         bool[,,] grid;
         MeshGeometry3D model;
@@ -44,6 +48,34 @@ namespace Sculptor.Model
                 Model = GetModel();
             }
         }
+
+        public ModelGrid()
+        {
+            Width = 0;
+            Height = 0;
+            Length = 0;
+            grid = new bool[Width + 2, Height + 2, Length + 2];
+            for (int i = 1; i < Width; i++)
+                for (int j = 1; j < Height; j++)
+                    for (int k = 1; k < Length; k++)
+                        grid[i, j, k] = true;
+            Model = GetModel();
+            ModelMaterial = GetMaterial();
+        }
+
+        public void SetParams(int width, int height, int length)
+        {
+            Width = width;
+            Height = height;
+            Length = length;
+            grid = new bool[width + 2, height + 2, length + 2];
+            for (int i = 1; i < width; i++)
+                for (int j = 1; j < height; j++)
+                    for (int k = 1; k < length; k++)
+                        grid[i, j, k] = true;
+            Model = GetModel();
+            ModelMaterial = GetMaterial();
+        }
         public ModelGrid (int width, int height, int length)
         {
             Width = width;
@@ -54,7 +86,7 @@ namespace Sculptor.Model
                 for (int j = 1; j < height; j++)
                     for (int k = 1; k < length; k++)
                         grid[i, j, k] = true;
-            model = GetModel();
+            Model = GetModel();
             ModelMaterial = GetMaterial();
             
         }
@@ -185,7 +217,29 @@ namespace Sculptor.Model
                 result = new Point3D(x + .5 * direction[0], y + .5 * direction[0], z + .5 * direction[0]);
             return result;
         }
-        
+
+        protected ModelGrid(SerializationInfo info, StreamingContext context)
+        {
+            grid = (bool[,,])info.GetValue("boolTable", typeof(bool[,,]));
+            Width = info.GetInt32("width");
+            Height = info.GetInt32("height");
+            Length = info.GetInt32("length");
+
+            Model = GetModel();
+            ModelMaterial = GetMaterial();
+        }
+
+        [SecurityPermissionAttribute(SecurityAction.Demand,
+        SerializationFormatter = true)]
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("boolTable", grid);
+            info.AddValue("width", Width);
+            info.AddValue("height", Height);
+            info.AddValue("length", Length);
+        }
+
+
 
         static readonly int[] edgeTable ={
             0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,

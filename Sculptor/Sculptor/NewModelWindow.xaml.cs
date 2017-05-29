@@ -33,7 +33,7 @@ namespace Sculptor
                 if (value != _width.ToString())
                 {
                     _width = Double.Parse(value);
-                    PropertyChanged(this, new PropertyChangedEventArgs(nameof(_width)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(_width)));
                 }
             }
         }
@@ -45,7 +45,7 @@ namespace Sculptor
                 if (value != _height.ToString())
                 {
                     _height = Double.Parse(value);
-                    PropertyChanged(this, new PropertyChangedEventArgs(nameof(_height)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(_height)));
                 }
             }
         }
@@ -57,13 +57,14 @@ namespace Sculptor
                 if (value != _length.ToString())
                 {
                     _length = Double.Parse(value);
-                    PropertyChanged(this, new PropertyChangedEventArgs(nameof(_length)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(_length)));
                 }
             }
         }
         public NewModelWindow()
         {
             InitializeComponent();
+            this.DataContext = this;
         }
 
 
