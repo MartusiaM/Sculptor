@@ -77,14 +77,17 @@ namespace Sculptor.Model
         {
             MeshGeometry3D geometry = new MeshGeometry3D();
             int vertexOffset = 0;
+            var allPossible = new Point3D[12];
 
             for (int x = 0; x < Width + 1; x++)
                 for (int y = 0; y < Height + 1; y++)
                     for (int z = 0; z < Length + 1; z++)
                     {
                         int cubeIndex = GetCubeIndex(x, y, z);
+                        if (cubeIndex == 0)
+                            continue;
                         vertexOffset = geometry.Positions.Count;
-                        var allPossible = GetAllVertices(x, y, z);
+                        GetAllVertices(x, y, z, allPossible);
                         var list = GetCubesVertices(x, y, z, edgeTable[cubeIndex], allPossible);
                         list.ForEach(t => geometry.Positions.Add(t));
 
@@ -112,7 +115,7 @@ namespace Sculptor.Model
             return index;
         }
         
-        List<int> GetFaces (int index, List<Point3D> allVertices, List<Point3D> selectedVertices)
+        List<int> GetFaces (int index, Point3D[] allVertices, List<Point3D> selectedVertices)
         {
             List<int> faces = new List<int>();
 
@@ -132,28 +135,33 @@ namespace Sculptor.Model
             return faces;
         }
 
-        List<Point3D> GetAllVertices(int x, int y, int z)
+        Point3D[] GetAllVertices(int x, int y, int z, Point3D[] points)
         {
-            List<Point3D> points = new List<Point3D>();
+            points[0] = new Point3D(x + .5, y, z + 1);
+            points[1] = new Point3D(x + 1, y, z + .5);
+            points[2] = new Point3D(x + .5, y, z);
+            points[3] = new Point3D(x, y, z + .5);
 
-            points.Add(new Point3D(x + .5, y, z + 1));
-            points.Add(new Point3D(x + 1, y, z + .5));
-            points.Add(new Point3D(x + .5, y, z));
-            points.Add(new Point3D(x, y, z + .5));
+            points[4] = new Point3D(x + .5, y + 1, z + 1);
+            points[5] = new Point3D(x + 1, y + 1, z + .5);
+            points[6] = new Point3D(x + .5, y + 1, z);
+            points[7] = new Point3D(x, y + 1, z + .5);
 
-            points.Add(new Point3D(x + .5, y + 1, z + 1));
-            points.Add(new Point3D(x + 1, y + 1, z + .5));
-            points.Add(new Point3D(x + .5, y + 1, z));
-            points.Add(new Point3D(x, y + 1, z + .5));
+            points[8] = new Point3D(x, y + .5, z + 1);
+            points[9] = new Point3D(x + 1, y + .5, z + 1);
+            points[10] = new Point3D(x + 1, y + .5, z);
+            points[11] = new Point3D(x, y + .5, z);
 
-            points.Add(new Point3D(x, y + .5, z + 1));
-            points.Add(new Point3D(x + 1, y + .5, z + 1));
-            points.Add(new Point3D(x + 1, y + .5, z));
-            points.Add(new Point3D(x, y + .5, z));
+            for (int i = 0; i < points.Length; i++)
+            {
+                points[i].X -= Width / 2;
+                points[i].Y -= Height / 2;
+                points[i].Z -= Length / 2;
+            }
             return points;
         }
 
-        List<Point3D> GetCubesVertices(int x, int y, int z, int index, List<Point3D> allVertices)
+        List<Point3D> GetCubesVertices(int x, int y, int z, int index, Point3D[] allVertices)
         {
             List<Point3D> points = new List<Point3D>();
 
@@ -174,16 +182,6 @@ namespace Sculptor.Model
 
             return points;
 
-        }
-
-        Point3D? CheckEdge(int [] point, int[] direction)
-        {
-            Point3D? result = null;
-            int x = point[0], y = point[1], z = point[2];
-            bool p1 = grid[x, y, z];
-            if (grid[x + direction[0], y + direction[1], z + direction[2]] != p1)
-                result = new Point3D(x + .5 * direction[0], y + .5 * direction[0], z + .5 * direction[0]);
-            return result;
         }
         
 
