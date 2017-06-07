@@ -28,6 +28,7 @@ namespace Sculptor
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        private int defaultModelSize = 10;
 
         //obracanie modelu
         float moveit = 1;//kat o jaki obracamy przy jednorazowym nacisnieciu strzalki
@@ -68,21 +69,15 @@ namespace Sculptor
         }
         public PerspectiveCamera Camera { get; set; }
 
-        //-----------------------------
-        public double ModelWidth { get; set; }
-        public double ModelHeight { get; set; }
-        public double ModelLength { get; set; }
-        //-------------------------
         public MainWindow()
         {
             InitializeComponent();
             fileName = null;
-            ModelGrid = new Model.ModelGrid(5, 5, 5);
+            //--------------------------------------------
+            //tutaj by trzeba wstawić jakis konstruktor np bez parametrowy, ktory pozwoli na 
+            //pozniejsze wyswietlenie dowolnej wielkosci bryly
+            ModelGrid = new Model.ModelGrid(15,15,15);
             //ModelGrid = new ModelGrid();
-
-            ModelWidth = 10;
-            ModelHeight = 10;
-            ModelLength = 10;
 
             Camera = new PerspectiveCamera();
             Camera.Position = new Point3D(12, 12, 12);
@@ -146,12 +141,14 @@ namespace Sculptor
 
         private void SaveSolid(object sender, RoutedEventArgs e)
         {
+            if (fileName == null)
+                SaveSolidAs(sender, e);
             Save(fileName);
         }
         private void SaveSolidAs(object sender, RoutedEventArgs e)
         {            
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            //dlg.Filter = "STL file (*.stl)|*.stl|All files (*.*)|*.*";
+            dlg.Filter = "All files (*.*)|*.*";
             if (dlg.ShowDialog() == true)
             {
                 fileName = dlg.FileName;
@@ -185,7 +182,7 @@ namespace Sculptor
         {
 
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            //dlg.Filter = "STL files (*.stl)|*.stl|All files (*.*)|*.*";
+            dlg.Filter = "All files (*.*)|*.*";
             if (dlg.ShowDialog() == true)
             {
                 //załadowanie informaccji z pliku
@@ -197,7 +194,9 @@ namespace Sculptor
                 
                 try
                 {
-                    ModelGrid = (ModelGrid)formatter.Deserialize(stream);
+                    ModelGrid OldModelGrid = (ModelGrid)formatter.Deserialize(stream);
+                    ModelGrid.SetModelFromFile(OldModelGrid.GetGrid(), OldModelGrid.Width, OldModelGrid.Height, OldModelGrid.Length);
+
                 }
                 catch (SerializationException exc)
                 {
@@ -218,10 +217,9 @@ namespace Sculptor
 
             // Configure the dialog box
             dlg.Owner = this;
-            dlg.NewHeight = ModelHeight.ToString();
-            dlg.NewLength = ModelLength.ToString();
-            dlg.NewWidth = ModelWidth.ToString();
-            //dlg.DocumentMargin = this.documentTextBox.Margin;
+            dlg.NewHeight = defaultModelSize.ToString();
+            dlg.NewLength = defaultModelSize.ToString();
+            dlg.NewWidth = defaultModelSize.ToString();
 
             // Open the dialog box modally 
             dlg.ShowDialog();
@@ -232,10 +230,8 @@ namespace Sculptor
                 int width = (int)(double.Parse(dlg.NewWidth) * 2);
                 int height = (int)(double.Parse(dlg.NewHeight) * 2);
                 int length = (int)(double.Parse(dlg.NewLength) * 2);
-
-                //ModelGrid = new ModelGrid(width, height, length);
-                ModelGrid = new Model.ModelGrid(5, 5, 5);
-               // ModelGrid = new ModelGrid(width, height, length);
+ 
+                ModelGrid.SetParams(width,height, length);    
 
             }
         }

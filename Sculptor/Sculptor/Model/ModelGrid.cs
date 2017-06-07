@@ -61,8 +61,24 @@ namespace Sculptor.Model
                 for (int j = 1; j < Height; j++)
                     for (int k = 1; k < Length; k++)
                         grid[i, j, k] = true;
-            Model = GetModel();
+            UpdateModel();
             ModelMaterial = GetMaterial();
+
+            //obrot wokol punktu (0,0,0)
+            xAxis = new AxisAngleRotation3D(new Vector3D(1, 0, 0), 0);
+            yAxis = new AxisAngleRotation3D(new Vector3D(0, 1, 0), 0);
+            Transforms = new Transform3DGroup();
+            Transforms.Children.Add(new RotateTransform3D(xAxis));
+            Transforms.Children.Add(new RotateTransform3D(yAxis));
+
+            //Camera initiation (nie ruszać kamery!!!) DOBRZE :)
+            Camera = new PerspectiveCamera();
+            Camera.Position = new Point3D(0, 0, Length * 3);
+            Camera.LookDirection = new Vector3D(0, 0, -1);
+            Camera.FieldOfView = 45;
+            Camera.UpDirection = new Vector3D(0, 1, 0);
+            Camera.NearPlaneDistance = 1;
+            Camera.FarPlaneDistance = Length * 6;
         }
 
         public void SetParams(int width, int height, int length)
@@ -75,8 +91,23 @@ namespace Sculptor.Model
                 for (int j = 1; j < height; j++)
                     for (int k = 1; k < length; k++)
                         grid[i, j, k] = true;
-            Model = GetModel();
-            ModelMaterial = GetMaterial();
+
+            UpdateModel();            
+        }
+
+        public void SetModelFromFile(bool[,,] _grid, int _width, int _height, int _length)
+        {
+            Width = _width;
+            Length = _length;
+            Height = _height;
+            this.grid = _grid.Clone() as bool[,,];
+
+            UpdateModel();
+        }
+
+        public bool[,,] GetGrid()
+        {
+            return grid as bool[,,];
         }
         public ModelGrid (int width, int height, int length)
         {
@@ -101,7 +132,7 @@ namespace Sculptor.Model
             Transforms.Children.Add(new RotateTransform3D(xAxis));
             Transforms.Children.Add(new RotateTransform3D(yAxis));
 
-            //Camera initiation (nie ruszać kamery!!!)
+            //Camera initiation (nie ruszać kamery!!!) DOBRZE :)
             Camera = new PerspectiveCamera();
             Camera.Position = new Point3D(0, 0, Length * 3);
             Camera.LookDirection = new Vector3D(0, 0, -1);
@@ -311,7 +342,7 @@ namespace Sculptor.Model
             Height = info.GetInt32("height");
             Length = info.GetInt32("length");
 
-            Model = GetModel();
+            UpdateModel();
             ModelMaterial = GetMaterial();
         }
 

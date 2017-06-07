@@ -28,7 +28,7 @@
             <TextBox.Text>
                 <Binding Path="NewWidth" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
-                        <local:NewModelValidation MinValue="5" MaxValue="70" />
+                        <local:NewModelValidation MinValue="2" MaxValue="70" />
                     </Binding.ValidationRules>
                 </Binding>
             </TextBox.Text>
@@ -38,7 +38,7 @@
             <TextBox.Text>
                 <Binding Path="NewHeight" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
-                        <local:NewModelValidation MinValue="5" MaxValue="70" />
+                        <local:NewModelValidation MinValue="2" MaxValue="70" />
                     </Binding.ValidationRules>
                 </Binding>
             </TextBox.Text>
@@ -48,7 +48,7 @@
             <TextBox.Text>
                 <Binding Path="NewLength" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
-                        <local:NewModelValidation MinValue="5" MaxValue="70" />
+                        <local:NewModelValidation MinValue="2" MaxValue="70" />
                     </Binding.ValidationRules>
                 </Binding>
             </TextBox.Text>
