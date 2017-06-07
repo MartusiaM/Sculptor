@@ -26,23 +26,11 @@ namespace Sculptor
         
         string fileName { get; set; }
         public ModelGrid ModelGrid { get; set; }
-        public PerspectiveCamera Camera { get; set; }
         public MainWindow()
         {
             InitializeComponent();
-            //niestety nic się jeszcze nie wyświetla, binduje ok ale nie chce się pokazać :(
             fileName = null;
-            ModelGrid = new Model.ModelGrid(5, 5, 5);
-            Camera = new PerspectiveCamera();
-            Camera.Position = new Point3D(12, 12, 12);
-            Camera.LookDirection = new Vector3D(-1, -1, -1);
-            Camera.FieldOfView = 45;
-            Camera.UpDirection = new Vector3D(0, 1, 0);
-            Camera.NearPlaneDistance = 1;
-            Camera.FarPlaneDistance = 40;
-
-
-
+            ModelGrid = new Model.ModelGrid(10, 10, 10);
             DataContext = this;
 
         }
@@ -172,6 +160,23 @@ namespace Sculptor
 
             //close application
             Application.Current.Shutdown();
+        }
+
+        private void viewport_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ModelGrid.BeginSculpturing();
+            ModelGrid.Sculpt(e.GetPosition(viewport), viewport.ActualWidth, viewport.ActualHeight);
+        }
+
+        private void viewport_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                ModelGrid.Sculpt(e.GetPosition(viewport), viewport.ActualWidth, viewport.ActualHeight);
+        }
+
+        private void viewport_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            ModelGrid.EndSculpturing();
         }
     }
 }

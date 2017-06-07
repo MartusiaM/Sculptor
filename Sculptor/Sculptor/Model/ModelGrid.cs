@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
@@ -15,9 +16,11 @@ namespace Sculptor.Model
     [Serializable] public class ModelGrid : INotifyPropertyChanged
     {
         bool[,,] grid;
+        bool[,,] helperGrid;
         MeshGeometry3D model;
         AxisAngleRotation3D xAxis;
         AxisAngleRotation3D yAxis;
+        public PerspectiveCamera Camera { get; private set; }
         public DiffuseMaterial ModelMaterial { get; private set; }
         public Transform3DGroup Transforms { get; private set; }
         public int Width { get; private set; }
@@ -28,6 +31,8 @@ namespace Sculptor.Model
         {
             get { return model; }
         }
+
+        
 
         public bool this[int i1, int i2, int i3]
         {
@@ -65,6 +70,15 @@ namespace Sculptor.Model
             Transforms.Children.Add(new RotateTransform3D(xAxis));
             Transforms.Children.Add(new RotateTransform3D(yAxis));
 
+            //Camera initiation (nie ruszać kamery!!!)
+            Camera = new PerspectiveCamera();
+            Camera.Position = new Point3D(0, 0, Length * 3);
+            Camera.LookDirection = new Vector3D(0, 0, -1);
+            Camera.FieldOfView = 45;
+            Camera.UpDirection = new Vector3D(0, 1, 0);
+            Camera.NearPlaneDistance = 1;
+            Camera.FarPlaneDistance = Length * 6;
+
         }
 
         public void RotateX(float angle)
@@ -75,6 +89,44 @@ namespace Sculptor.Model
         public void RotateY(float angle)
         {
             yAxis.Angle += angle;
+        }
+
+        public void BeginSculpturing()
+        {
+            helperGrid = grid.Clone() as bool[,,];
+        }
+
+        public void Sculpt(Point point, double viewportWidth, double viewportHeight)
+        {
+            point.X -= viewportWidth / 2;
+            point.Y = -point.Y + viewportHeight / 2;
+            double angleX = Math.PI / 2 + Camera.FieldOfView / 360 * Math.PI * point.X / (viewportHeight / 2);
+            double angleY = Math.PI / 2 + Camera.FieldOfView / 360 * Math.PI * point.Y / (viewportHeight / 2);
+            int x = 0;
+            int y = 0;
+            int z = (int)Math.Round(Camera.Position.Z);// - Length / 2;
+            double z1 = Camera.Position.Z;// + (double)Length / 2;
+
+            while (!CheckBounds(x, y, z) || !helperGrid[x, y, z])
+            {
+                z--;
+                if (z < -Length)
+                    return;
+                x = (int)Math.Round((z - z1) / Math.Tan(angleX) + (double)Width / 2);
+                y = (int)Math.Round((z - z1) / Math.Tan(angleY) + (double)Height / 2);
+            }
+            grid[x, y, z] = false;
+            
+            UpdateModel();
+        }
+        public void EndSculpturing()
+        {
+            helperGrid = null;
+        }
+
+        bool CheckBounds(int x, int y, int z)
+        {
+            return (x >= 0 && y >= 0 && z >= 0 && x < Width + 2 && y < Height + 2 && z < Length + 2);
         }
 
         DiffuseMaterial GetMaterial()
@@ -191,9 +243,9 @@ namespace Sculptor.Model
 
             for (int i = 0; i < points.Length; i++)
             {
-                points[i].X -= Width / 2;
-                points[i].Y -= Height / 2;
-                points[i].Z -= Length / 2;
+                points[i].X -= (double)Width / 2;
+                points[i].Y -= (double)Height / 2;
+                points[i].Z -= (double)Length / 2;
             }
             return points;
         }

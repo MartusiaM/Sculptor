@@ -43,7 +43,13 @@
 
         <!--kolumna pierwsza to panel, kolumna druga to okna w ktorym modelujemy bryle-->
         <Canvas Grid.Column="1" Grid.Row="1" Name="canvas">
-            <Viewport3D x:Name="viewport" Camera="{Binding Camera}" Height="{Binding ActualHeight, ElementName=canvas}" Width="{Binding ActualWidth, ElementName=canvas}">
+            <Viewport3D x:Name="viewport" 
+                        Camera="{Binding ModelGrid.Camera}" 
+                        Height="{Binding ActualHeight, ElementName=canvas}" 
+                        Width="{Binding ActualWidth, ElementName=canvas}" 
+                        MouseDown="viewport_MouseDown" 
+                        MouseMove="viewport_MouseMove" 
+                        MouseUp="viewport_MouseUp">
                 <Viewport3D.Children>
                     <!--<ModelVisual3D Content="{Binding ModelGrid.Model.Content, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"
                                    Transform="{Binding ModelGrid.Transforms, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>-->
