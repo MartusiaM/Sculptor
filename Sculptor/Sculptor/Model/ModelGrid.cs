@@ -15,20 +15,18 @@ namespace Sculptor.Model
     [Serializable] public class ModelGrid : INotifyPropertyChanged
     {
         bool[,,] grid;
-        MeshGeometry3D model;
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public int Length { get; set; }
+        ModelVisual3D model;
+        MeshGeometry3D mesh;
+        AxisAngleRotation3D xAxis;
+        AxisAngleRotation3D yAxis;
+        public Transform3DGroup Transforms { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public int Length { get; private set; }
         public event PropertyChangedEventHandler PropertyChanged;
-        public DiffuseMaterial ModelMaterial { get; set; }
-        public MeshGeometry3D Model
+        public ModelVisual3D Model
         {
             get { return model; }
-            private set
-            {
-                model = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(model)));
-            }
         }
 
         public bool this[int i1, int i2, int i3]
@@ -40,12 +38,13 @@ namespace Sculptor.Model
             set
             {
                 grid[i1 + 1, i2 + 1, i3 + 1] = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(grid)));
-                Model = GetModel();
+                UpdateModel();
             }
         }
+
         public ModelGrid (int width, int height, int length)
         {
+            //initiation of the grid
             Width = width;
             Height = height;
             Length = length;
@@ -54,11 +53,34 @@ namespace Sculptor.Model
                 for (int j = 1; j < height + 1; j++)
                     for (int k = 1; k < length + 1; k++)
                         grid[i, j, k] = true;
-            model = GetModel();
-            ModelMaterial = GetMaterial();
-            
+
+            //initiation of the model
+            model = new ModelVisual3D();
+            var group = new Model3DGroup();
+            UpdateModel();
+            group.Children.Add(new DirectionalLight(Colors.White, new Vector3D(-1, -1, -1)));
+            group.Children.Add(new GeometryModel3D(mesh, GetMaterial()));
+            model.Content = group;
+
+            //obrot wokol punktu (0,0,0)
+            xAxis = new AxisAngleRotation3D(new Vector3D(1, 0, 0), 0);
+            yAxis = new AxisAngleRotation3D(new Vector3D(0, 1, 0), 0);
+            Transforms = new Transform3DGroup();
+            Transforms.Children.Add(new RotateTransform3D(xAxis));
+            Transforms.Children.Add(new RotateTransform3D(yAxis));
+            model.Transform = Transforms;
+
         }
-        
+
+        public void RotateX(float angle)
+        {
+            xAxis.Angle += angle;
+        }
+
+        public void RotateY(float angle)
+        {
+            yAxis.Angle += angle;
+        }
 
         DiffuseMaterial GetMaterial()
         {
@@ -73,7 +95,7 @@ namespace Sculptor.Model
         }
 
 
-        public MeshGeometry3D GetModel()
+        void UpdateModel()
         {
             MeshGeometry3D geometry = new MeshGeometry3D();
             int vertexOffset = 0;
@@ -98,7 +120,9 @@ namespace Sculptor.Model
                         
                     }
 
-            return geometry;
+            mesh = geometry;
+            //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(model)));
+            return;
         }
 
         int GetCubeIndex (int x, int y, int z)

@@ -32,3 +32,20 @@ C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\NewModelWindow.b
 C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.g.resources
 C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.Properties.Resources.resources
 C:\Users\Asus\Source\Repos\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.csproj.GenerateResource.Cache
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\bin\Debug\Sculptor.exe.config
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.exe
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.pdb
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\bin\Debug\Sculptor.exe
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\bin\Debug\Sculptor.pdb
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.csprojResolveAssemblyReference.cache
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\MainWindow.g.cs
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\NewModelWindow.g.cs
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\App.g.cs
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\GeneratedInternalTypeHelper.g.cs
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor_MarkupCompile.cache
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor_MarkupCompile.lref
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\MainWindow.baml
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\NewModelWindow.baml
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.g.resources
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.Properties.Resources.resources
+C:\Users\Dell\Documents\Visual Studio 2015\Projects\Sculptor\Sculptor\Sculptor\obj\Debug\Sculptor.csproj.GenerateResource.Cache
