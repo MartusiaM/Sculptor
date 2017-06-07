@@ -15,16 +15,16 @@ namespace Sculptor.Model
     [Serializable] public class ModelGrid : INotifyPropertyChanged
     {
         bool[,,] grid;
-        ModelVisual3D model;
-        MeshGeometry3D mesh;
+        MeshGeometry3D model;
         AxisAngleRotation3D xAxis;
         AxisAngleRotation3D yAxis;
+        public DiffuseMaterial ModelMaterial { get; private set; }
         public Transform3DGroup Transforms { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
         public int Length { get; private set; }
         public event PropertyChangedEventHandler PropertyChanged;
-        public ModelVisual3D Model
+        public MeshGeometry3D Model
         {
             get { return model; }
         }
@@ -55,12 +55,8 @@ namespace Sculptor.Model
                         grid[i, j, k] = true;
 
             //initiation of the model
-            model = new ModelVisual3D();
-            var group = new Model3DGroup();
             UpdateModel();
-            group.Children.Add(new DirectionalLight(Colors.White, new Vector3D(-1, -1, -1)));
-            group.Children.Add(new GeometryModel3D(mesh, GetMaterial()));
-            model.Content = group;
+            ModelMaterial = GetMaterial();
 
             //obrot wokol punktu (0,0,0)
             xAxis = new AxisAngleRotation3D(new Vector3D(1, 0, 0), 0);
@@ -68,7 +64,6 @@ namespace Sculptor.Model
             Transforms = new Transform3DGroup();
             Transforms.Children.Add(new RotateTransform3D(xAxis));
             Transforms.Children.Add(new RotateTransform3D(yAxis));
-            model.Transform = Transforms;
 
         }
 
@@ -120,22 +115,22 @@ namespace Sculptor.Model
                         
                     }
 
-            mesh = geometry;
-            //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(model)));
+            model = geometry;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(model)));
             return;
         }
 
         int GetCubeIndex (int x, int y, int z)
         {
             int index = 0;
-            if (!grid[x, y, z + 1]) index |= 1;
-            if (!grid[x + 1, y + 1, z + 1]) index |= 2;
-            if (!grid[x + 1, y, z]) index |= 4;
-            if (!grid[x, y, z]) index |= 8;
-            if (!grid[x, y + 1, z + 1]) index |= 16;
-            if (!grid[x + 1, y + 1, z + 1]) index |= 32;
-            if (!grid[x + 1, y + 1, z]) index |= 64;
-            if (!grid[x, y + 1, z]) index |= 128;
+            if (!grid[x, y, z + 1]) index |= 1; //0
+            if (!grid[x + 1, y, z + 1]) index |= 2; //1
+            if (!grid[x + 1, y, z]) index |= 4; //2
+            if (!grid[x, y, z]) index |= 8; //3
+            if (!grid[x, y + 1, z + 1]) index |= 16; //4
+            if (!grid[x + 1, y + 1, z + 1]) index |= 32; //5
+            if (!grid[x + 1, y + 1, z]) index |= 64; //6
+            if (!grid[x, y + 1, z]) index |= 128; //7
             return index;
         }
         
@@ -159,8 +154,8 @@ namespace Sculptor.Model
                 Vector3D normal = CalculateNormal(v1, v2, v3);
                 var dot = Vector3D.DotProduct(normal, toCentre);
 
-                if (dot > 0)
-                    vertices = vertices.Reverse().ToArray();
+                //if (dot > 0)
+                //    vertices = vertices.Reverse().ToArray();
                 faces.AddRange(vertices);
 
             }
