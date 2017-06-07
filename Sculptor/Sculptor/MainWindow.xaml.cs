@@ -76,7 +76,6 @@ namespace Sculptor
         public MainWindow()
         {
             InitializeComponent();
-            //niestety nic się jeszcze nie wyświetla, binduje ok ale nie chce się pokazać :(
             fileName = null;
             ModelGrid = new Model.ModelGrid(5, 5, 5);
             //ModelGrid = new ModelGrid();
@@ -119,22 +118,22 @@ namespace Sculptor
         {
             if (e.Key == Key.Up)
             {
-                xAxis.Angle -= moveit;
+                ModelGrid.RotateX(-moveit);
                 e.Handled = true;
             }
             else if (e.Key == Key.Down)
             {
-                xAxis.Angle += moveit;
+                ModelGrid.RotateX(moveit);
                 e.Handled = true;
             }
             else if (e.Key == Key.Right)
             {
-                yAxis.Angle += moveit;
+                ModelGrid.RotateY(moveit);
                 e.Handled = true;
             }
             else if (e.Key == Key.Left)
             {
-                yAxis.Angle -= moveit;
+                ModelGrid.RotateY(-moveit);
                 e.Handled = true;
             }
         }
@@ -253,6 +252,23 @@ namespace Sculptor
 
             //close application
             Application.Current.Shutdown();
+        }
+
+        private void viewport_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ModelGrid.BeginSculpturing();
+            ModelGrid.Sculpt(e.GetPosition(viewport), viewport.ActualWidth, viewport.ActualHeight);
+        }
+
+        private void viewport_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                ModelGrid.Sculpt(e.GetPosition(viewport), viewport.ActualWidth, viewport.ActualHeight);
+        }
+
+        private void viewport_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            ModelGrid.EndSculpturing();
         }
     }
 }

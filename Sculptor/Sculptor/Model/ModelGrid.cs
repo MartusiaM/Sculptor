@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
@@ -19,21 +20,23 @@ namespace Sculptor.Model
     public class ModelGrid : INotifyPropertyChanged, ISerializable
     {
         bool[,,] grid;
+        bool[,,] helperGrid;
         MeshGeometry3D model;
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public int Length { get; set; }
+        AxisAngleRotation3D xAxis;
+        AxisAngleRotation3D yAxis;
+        public PerspectiveCamera Camera { get; private set; }
+        public DiffuseMaterial ModelMaterial { get; private set; }
+        public Transform3DGroup Transforms { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public int Length { get; private set; }
         public event PropertyChangedEventHandler PropertyChanged;
-        public DiffuseMaterial ModelMaterial { get; set; }
         public MeshGeometry3D Model
         {
             get { return model; }
-            private set
-            {
-                model = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(model)));
-            }
         }
+
+        
 
         public bool this[int i1, int i2, int i3]
         {
@@ -44,8 +47,7 @@ namespace Sculptor.Model
             set
             {
                 grid[i1 + 1, i2 + 1, i3 + 1] = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(grid)));
-                Model = GetModel();
+                UpdateModel();
             }
         }
 
@@ -78,19 +80,85 @@ namespace Sculptor.Model
         }
         public ModelGrid (int width, int height, int length)
         {
+            //initiation of the grid
             Width = width;
             Height = height;
             Length = length;
             grid = new bool[width + 2, height + 2, length + 2];
-            for (int i = 1; i < width; i++)
-                for (int j = 1; j < height; j++)
-                    for (int k = 1; k < length; k++)
+            for (int i = 1; i < width + 1; i++)
+                for (int j = 1; j < height + 1; j++)
+                    for (int k = 1; k < length + 1; k++)
                         grid[i, j, k] = true;
-            Model = GetModel();
+
+            //initiation of the model
+            UpdateModel();
             ModelMaterial = GetMaterial();
-            
+
+            //obrot wokol punktu (0,0,0)
+            xAxis = new AxisAngleRotation3D(new Vector3D(1, 0, 0), 0);
+            yAxis = new AxisAngleRotation3D(new Vector3D(0, 1, 0), 0);
+            Transforms = new Transform3DGroup();
+            Transforms.Children.Add(new RotateTransform3D(xAxis));
+            Transforms.Children.Add(new RotateTransform3D(yAxis));
+
+            //Camera initiation (nie ruszać kamery!!!)
+            Camera = new PerspectiveCamera();
+            Camera.Position = new Point3D(0, 0, Length * 3);
+            Camera.LookDirection = new Vector3D(0, 0, -1);
+            Camera.FieldOfView = 45;
+            Camera.UpDirection = new Vector3D(0, 1, 0);
+            Camera.NearPlaneDistance = 1;
+            Camera.FarPlaneDistance = Length * 6;
+
         }
-        
+
+        public void RotateX(float angle)
+        {
+            xAxis.Angle += angle;
+        }
+
+        public void RotateY(float angle)
+        {
+            yAxis.Angle += angle;
+        }
+
+        public void BeginSculpturing()
+        {
+            helperGrid = grid.Clone() as bool[,,];
+        }
+
+        public void Sculpt(Point point, double viewportWidth, double viewportHeight)
+        {
+            point.X -= viewportWidth / 2;
+            point.Y = -point.Y + viewportHeight / 2;
+            double angleX = Math.PI / 2 + Camera.FieldOfView / 360 * Math.PI * point.X / (viewportHeight / 2);
+            double angleY = Math.PI / 2 + Camera.FieldOfView / 360 * Math.PI * point.Y / (viewportHeight / 2);
+            int x = 0;
+            int y = 0;
+            int z = (int)Math.Round(Camera.Position.Z);// - Length / 2;
+            double z1 = Camera.Position.Z;// + (double)Length / 2;
+
+            while (!CheckBounds(x, y, z) || !helperGrid[x, y, z])
+            {
+                z--;
+                if (z < -Length)
+                    return;
+                x = (int)Math.Round((z - z1) / Math.Tan(angleX) + (double)Width / 2);
+                y = (int)Math.Round((z - z1) / Math.Tan(angleY) + (double)Height / 2);
+            }
+            grid[x, y, z] = false;
+            
+            UpdateModel();
+        }
+        public void EndSculpturing()
+        {
+            helperGrid = null;
+        }
+
+        bool CheckBounds(int x, int y, int z)
+        {
+            return (x >= 0 && y >= 0 && z >= 0 && x < Width + 2 && y < Height + 2 && z < Length + 2);
+        }
 
         DiffuseMaterial GetMaterial()
         {
@@ -105,18 +173,21 @@ namespace Sculptor.Model
         }
 
 
-        public MeshGeometry3D GetModel()
+        void UpdateModel()
         {
             MeshGeometry3D geometry = new MeshGeometry3D();
             int vertexOffset = 0;
+            var allPossible = new Point3D[12];
 
             for (int x = 0; x < Width + 1; x++)
                 for (int y = 0; y < Height + 1; y++)
                     for (int z = 0; z < Length + 1; z++)
                     {
                         int cubeIndex = GetCubeIndex(x, y, z);
+                        if (cubeIndex == 0)
+                            continue;
                         vertexOffset = geometry.Positions.Count;
-                        var allPossible = GetAllVertices(x, y, z);
+                        GetAllVertices(x, y, z, allPossible);
                         var list = GetCubesVertices(x, y, z, edgeTable[cubeIndex], allPossible);
                         list.ForEach(t => geometry.Positions.Add(t));
 
@@ -127,24 +198,26 @@ namespace Sculptor.Model
                         
                     }
 
-            return geometry;
+            model = geometry;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(model)));
+            return;
         }
 
         int GetCubeIndex (int x, int y, int z)
         {
             int index = 0;
-            if (!grid[x, y, z + 1]) index |= 1;
-            if (!grid[x + 1, y + 1, z + 1]) index |= 2;
-            if (!grid[x + 1, y, z]) index |= 4;
-            if (!grid[x, y, z]) index |= 8;
-            if (!grid[x, y + 1, z + 1]) index |= 16;
-            if (!grid[x + 1, y + 1, z + 1]) index |= 32;
-            if (!grid[x + 1, y + 1, z]) index |= 64;
-            if (!grid[x, y + 1, z]) index |= 128;
+            if (!grid[x, y, z + 1]) index |= 1; //0
+            if (!grid[x + 1, y, z + 1]) index |= 2; //1
+            if (!grid[x + 1, y, z]) index |= 4; //2
+            if (!grid[x, y, z]) index |= 8; //3
+            if (!grid[x, y + 1, z + 1]) index |= 16; //4
+            if (!grid[x + 1, y + 1, z + 1]) index |= 32; //5
+            if (!grid[x + 1, y + 1, z]) index |= 64; //6
+            if (!grid[x, y + 1, z]) index |= 128; //7
             return index;
         }
         
-        List<int> GetFaces (int index, List<Point3D> allVertices, List<Point3D> selectedVertices)
+        List<int> GetFaces (int index, Point3D[] allVertices, List<Point3D> selectedVertices)
         {
             List<int> faces = new List<int>();
 
@@ -152,40 +225,63 @@ namespace Sculptor.Model
             {
                 if (triTable[index, i] < 0)
                     break;
+                Point3D v1 = allVertices[triTable[index, i]], v2 = allVertices[triTable[index, i + 1]], v3 = allVertices[triTable[index, i + 2]];
                 int[] vertices = new[] 
                 {
-                    selectedVertices.IndexOf(allVertices[triTable[index, i]]),
-                    selectedVertices.IndexOf(allVertices[triTable[index, i + 1]]),
-                    selectedVertices.IndexOf(allVertices[triTable[index, i + 2]])
+                    selectedVertices.IndexOf(v1),
+                    selectedVertices.IndexOf(v2),
+                    selectedVertices.IndexOf(v3)
                 };
-                faces.AddRange(new[] { vertices[0], vertices[1], vertices[2] });
+                Vector3D toCentre = new Vector3D(-v1.X, -v1.Y, -v1.Z);
+                toCentre.Normalize();
+                Vector3D normal = CalculateNormal(v1, v2, v3);
+                var dot = Vector3D.DotProduct(normal, toCentre);
+
+                //if (dot > 0)
+                //    vertices = vertices.Reverse().ToArray();
+                faces.AddRange(vertices);
+
             }
 
             return faces;
         }
 
-        List<Point3D> GetAllVertices(int x, int y, int z)
+        Vector3D CalculateNormal(Point3D a, Point3D b, Point3D c)
         {
-            List<Point3D> points = new List<Point3D>();
+            Vector3D A = new Vector3D(b.X - a.X, b.Y - a.Y, b.Z - a.Z);
+            Vector3D B = new Vector3D(c.X - a.X, c.Y - a.Y, c.Z - a.Z);
+            Vector3D normal = Vector3D.CrossProduct(A, B);
+            normal.Normalize();
+            return normal;
+        } 
 
-            points.Add(new Point3D(x + .5, y, z + 1));
-            points.Add(new Point3D(x + 1, y, z + .5));
-            points.Add(new Point3D(x + .5, y, z));
-            points.Add(new Point3D(x, y, z + .5));
+        Point3D[] GetAllVertices(int x, int y, int z, Point3D[] points)
+        {
+            points[0] = new Point3D(x + .5, y, z + 1);
+            points[1] = new Point3D(x + 1, y, z + .5);
+            points[2] = new Point3D(x + .5, y, z);
+            points[3] = new Point3D(x, y, z + .5);
 
-            points.Add(new Point3D(x + .5, y + 1, z + 1));
-            points.Add(new Point3D(x + 1, y + 1, z + .5));
-            points.Add(new Point3D(x + .5, y + 1, z));
-            points.Add(new Point3D(x, y + 1, z + .5));
+            points[4] = new Point3D(x + .5, y + 1, z + 1);
+            points[5] = new Point3D(x + 1, y + 1, z + .5);
+            points[6] = new Point3D(x + .5, y + 1, z);
+            points[7] = new Point3D(x, y + 1, z + .5);
 
-            points.Add(new Point3D(x, y + .5, z + 1));
-            points.Add(new Point3D(x + 1, y + .5, z + 1));
-            points.Add(new Point3D(x + 1, y + .5, z));
-            points.Add(new Point3D(x, y + .5, z));
+            points[8] = new Point3D(x, y + .5, z + 1);
+            points[9] = new Point3D(x + 1, y + .5, z + 1);
+            points[10] = new Point3D(x + 1, y + .5, z);
+            points[11] = new Point3D(x, y + .5, z);
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                points[i].X -= (double)Width / 2;
+                points[i].Y -= (double)Height / 2;
+                points[i].Z -= (double)Length / 2;
+            }
             return points;
         }
 
-        List<Point3D> GetCubesVertices(int x, int y, int z, int index, List<Point3D> allVertices)
+        List<Point3D> GetCubesVertices(int x, int y, int z, int index, Point3D[] allVertices)
         {
             List<Point3D> points = new List<Point3D>();
 
@@ -206,16 +302,6 @@ namespace Sculptor.Model
 
             return points;
 
-        }
-
-        Point3D? CheckEdge(int [] point, int[] direction)
-        {
-            Point3D? result = null;
-            int x = point[0], y = point[1], z = point[2];
-            bool p1 = grid[x, y, z];
-            if (grid[x + direction[0], y + direction[1], z + direction[2]] != p1)
-                result = new Point3D(x + .5 * direction[0], y + .5 * direction[0], z + .5 * direction[0]);
-            return result;
         }
 
         protected ModelGrid(SerializationInfo info, StreamingContext context)
