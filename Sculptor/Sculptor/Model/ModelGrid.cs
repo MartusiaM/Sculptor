@@ -162,20 +162,29 @@ namespace Sculptor.Model
         {
             point.X -= viewportWidth / 2;
             point.Y = -point.Y + viewportHeight / 2;
-            double angleX = Math.PI / 2 + Camera.FieldOfView / 360 * Math.PI * point.X / (viewportHeight / 2);
-            double angleY = Math.PI / 2 + Camera.FieldOfView / 360 * Math.PI * point.Y / (viewportHeight / 2);
+            double aX = Math.Tan(Math.PI / 2 + Camera.FieldOfView / 360 * Math.PI * point.X / (viewportHeight / 2));
+            double aY = Math.Tan(Math.PI / 2 + Camera.FieldOfView / 360 * Math.PI * point.Y / (viewportHeight / 2));
+
+            double xAngle = -xAxis.Angle / 180 * Math.PI;
+            double yAngle = -yAxis.Angle / 180 * Math.PI;
+
+            double z0 = Camera.Position.Z;// + (double)Length / 2;
+            double bx = z0 * (Math.Cos(yAngle) + aX * Math.Sin(yAngle));
+            double by = z0 * (Math.Cos(xAngle) + aY * Math.Sin(xAngle));
+            double ax = (-z0 / aX * Math.Sin(yAngle) - z0 * Math.Cos(yAngle)) / (-z0 / aX * Math.Cos(yAngle) + z0 * Math.Sin(yAngle));
+            double ay = (-z0 / aY * Math.Sin(xAngle) - z0 * Math.Cos(xAngle)) / (-z0 / aY * Math.Cos(xAngle) + z0 * Math.Sin(xAngle));
+
             int x = 0;
             int y = 0;
             int z = (int)Math.Round(Camera.Position.Z);// - Length / 2;
-            double z1 = Camera.Position.Z;// + (double)Length / 2;
 
             while (!CheckBounds(x, y, z) || !helperGrid[x, y, z])
             {
                 z--;
                 if (z < -Length)
                     return;
-                x = (int)Math.Round((z - z1) / Math.Tan(angleX) + (double)Width / 2);
-                y = (int)Math.Round((z - z1) / Math.Tan(angleY) + (double)Height / 2);
+                x = (int)Math.Round((z - bx) / ax + (double)Width / 2);
+                y = (int)Math.Round((z - by) / ay + (double)Height / 2);
             }
             grid[x, y, z] = false;
             
