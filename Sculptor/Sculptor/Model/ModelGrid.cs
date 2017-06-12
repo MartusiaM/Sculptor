@@ -22,9 +22,10 @@ namespace Sculptor.Model
         bool[,,] grid;
         bool[,,] helperGrid;
         MeshGeometry3D model;
+        PerspectiveCamera camera;
         AxisAngleRotation3D xAxis;
         AxisAngleRotation3D yAxis;
-        public PerspectiveCamera Camera { get; private set; }
+        public PerspectiveCamera Camera { get { return camera; }  }
         public DiffuseMaterial ModelMaterial { get; private set; }
         public Transform3DGroup Transforms { get; private set; }
         public int Width { get; private set; }
@@ -51,35 +52,35 @@ namespace Sculptor.Model
             }
         }
 
-        public ModelGrid()
-        {
-            Width = 0;
-            Height = 0;
-            Length = 0;
-            grid = new bool[Width + 2, Height + 2, Length + 2];
-            for (int i = 1; i < Width; i++)
-                for (int j = 1; j < Height; j++)
-                    for (int k = 1; k < Length; k++)
-                        grid[i, j, k] = true;
-            UpdateModel();
-            ModelMaterial = GetMaterial();
+        //public ModelGrid()
+        //{
+        //    Width = 0;
+        //    Height = 0;
+        //    Length = 0;
+        //    grid = new bool[Width + 2, Height + 2, Length + 2];
+        //    for (int i = 1; i < Width; i++)
+        //        for (int j = 1; j < Height; j++)
+        //            for (int k = 1; k < Length; k++)
+        //                grid[i, j, k] = true;
+        //    UpdateModel();
+        //    ModelMaterial = GetMaterial();
 
-            //obrot wokol punktu (0,0,0)
-            xAxis = new AxisAngleRotation3D(new Vector3D(1, 0, 0), 0);
-            yAxis = new AxisAngleRotation3D(new Vector3D(0, 1, 0), 0);
-            Transforms = new Transform3DGroup();
-            Transforms.Children.Add(new RotateTransform3D(xAxis));
-            Transforms.Children.Add(new RotateTransform3D(yAxis));
+        //    //obrot wokol punktu (0,0,0)
+        //    xAxis = new AxisAngleRotation3D(new Vector3D(1, 0, 0), 0);
+        //    yAxis = new AxisAngleRotation3D(new Vector3D(0, 1, 0), 0);
+        //    Transforms = new Transform3DGroup();
+        //    Transforms.Children.Add(new RotateTransform3D(xAxis));
+        //    Transforms.Children.Add(new RotateTransform3D(yAxis));
 
-            //Camera initiation (nie ruszać kamery!!!) DOBRZE :)
-            Camera = new PerspectiveCamera();
-            Camera.Position = new Point3D(0, 0, Length * 3);
-            Camera.LookDirection = new Vector3D(0, 0, -1);
-            Camera.FieldOfView = 45;
-            Camera.UpDirection = new Vector3D(0, 1, 0);
-            Camera.NearPlaneDistance = 1;
-            Camera.FarPlaneDistance = Length * 6;
-        }
+        //    //Camera initiation (nie ruszać kamery!!!) DOBRZE :)
+        //    camera = new PerspectiveCamera();
+        //    Camera.Position = new Point3D(0, 0, Length * 3);
+        //    Camera.LookDirection = new Vector3D(0, 0, -1);
+        //    Camera.FieldOfView = 45;
+        //    Camera.UpDirection = new Vector3D(0, 1, 0);
+        //    Camera.NearPlaneDistance = 1;
+        //    Camera.FarPlaneDistance = Length * 6;
+        //}
 
         public void SetParams(int width, int height, int length)
         {
@@ -92,7 +93,8 @@ namespace Sculptor.Model
                     for (int k = 1; k < length; k++)
                         grid[i, j, k] = true;
 
-            UpdateModel();            
+            UpdateModel();
+            SetCamera(length);         
         }
 
         public void SetModelFromFile(bool[,,] _grid, int _width, int _height, int _length)
@@ -103,26 +105,25 @@ namespace Sculptor.Model
             this.grid = _grid.Clone() as bool[,,];
 
             UpdateModel();
+            SetCamera(_length);
         }
 
         public bool[,,] GetGrid()
         {
             return grid as bool[,,];
         }
-        public ModelGrid (int width, int height, int length)
+        public ModelGrid ()
         {
-            //initiation of the grid
-            Width = width;
-            Height = height;
-            Length = length;
-            grid = new bool[width + 2, height + 2, length + 2];
-            for (int i = 1; i < width + 1; i++)
-                for (int j = 1; j < height + 1; j++)
-                    for (int k = 1; k < length + 1; k++)
-                        grid[i, j, k] = true;
+            //Camera initiation (nie ruszać kamery!!!) DOBRZE :)
+            camera = new PerspectiveCamera();
+            Camera.LookDirection = new Vector3D(0, 0, -1);
+            Camera.FieldOfView = 45;
+            Camera.UpDirection = new Vector3D(0, 1, 0);
+            Camera.NearPlaneDistance = 1;
 
-            //initiation of the model
-            UpdateModel();
+            //initiation of the grid
+            //SetParams(width, height, length);
+
             ModelMaterial = GetMaterial();
 
             //obrot wokol punktu (0,0,0)
@@ -132,15 +133,14 @@ namespace Sculptor.Model
             Transforms.Children.Add(new RotateTransform3D(xAxis));
             Transforms.Children.Add(new RotateTransform3D(yAxis));
 
-            //Camera initiation (nie ruszać kamery!!!) DOBRZE :)
-            Camera = new PerspectiveCamera();
-            Camera.Position = new Point3D(0, 0, Length * 3);
-            Camera.LookDirection = new Vector3D(0, 0, -1);
-            Camera.FieldOfView = 45;
-            Camera.UpDirection = new Vector3D(0, 1, 0);
-            Camera.NearPlaneDistance = 1;
-            Camera.FarPlaneDistance = Length * 6;
 
+        }
+
+        void SetCamera(int length)
+        {
+            Camera.Position = new Point3D(0, 0, length * 3);
+            Camera.FarPlaneDistance = length * 6;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(camera)));
         }
 
         public void RotateX(float angle)

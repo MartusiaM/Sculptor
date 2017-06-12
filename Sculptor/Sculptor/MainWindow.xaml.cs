@@ -76,7 +76,7 @@ namespace Sculptor
             //--------------------------------------------
             //tutaj by trzeba wstawić jakis konstruktor np bez parametrowy, ktory pozwoli na 
             //pozniejsze wyswietlenie dowolnej wielkosci bryly
-            ModelGrid = new Model.ModelGrid(50,50,50);
+            ModelGrid = new Model.ModelGrid();
             //ModelGrid = new ModelGrid();
 
             Camera = new PerspectiveCamera();
