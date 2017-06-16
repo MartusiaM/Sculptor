@@ -94,7 +94,8 @@ namespace Sculptor.Model
                         grid[i, j, k] = true;
 
             UpdateModel();
-            SetCamera(length);         
+            SetCamera(width, height, length);
+            RestartTransformation();    
         }
 
         public void SetModelFromFile(bool[,,] _grid, int _width, int _height, int _length)
@@ -105,7 +106,8 @@ namespace Sculptor.Model
             this.grid = _grid.Clone() as bool[,,];
 
             UpdateModel();
-            SetCamera(_length);
+            SetCamera(_width, _height,_length);
+            RestartTransformation();
         }
 
         public bool[,,] GetGrid()
@@ -136,10 +138,19 @@ namespace Sculptor.Model
 
         }
 
-        void SetCamera(int length)
+        void RestartTransformation()
         {
-            Camera.Position = new Point3D(0, 0, length * 3);
-            Camera.FarPlaneDistance = length * 6;
+            xAxis.Angle = 0;
+            yAxis.Angle = 0;
+        }
+
+        void SetCamera(int width, int height, int length)
+        {
+            int distance = Math.Max(width, height);
+            distance = Math.Max(distance, length);
+
+            Camera.Position = new Point3D(0, 0, distance * 3);
+            Camera.FarPlaneDistance = distance * 6;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(camera)));
         }
 

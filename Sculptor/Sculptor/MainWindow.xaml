@@ -7,7 +7,7 @@
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="Sculptor.MainWindow" x:Name="Window"
         mc:Ignorable="d"
-        Title="Sculptor" Height="550" Width="800" KeyDown="Window_KeyDown">
+        Title="Sculptor" Height="550" Width="800" KeyDown="Window_KeyDown" Icon="Images/art_sculpture_icon.jpg">
 
     <Grid Background="#f0f0f0">
         <Grid.ColumnDefinitions>

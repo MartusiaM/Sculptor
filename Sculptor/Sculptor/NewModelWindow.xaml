@@ -8,7 +8,7 @@
         Title="Create new model" Height="220" Width="300"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
-        WindowStartupLocation="CenterOwner" >
+        WindowStartupLocation="CenterOwner" Icon="Images/art_sculpture_icon.jpg" >
     <Grid>
 
         <Grid.RowDefinitions>
