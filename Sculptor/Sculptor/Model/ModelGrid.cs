@@ -119,7 +119,7 @@ namespace Sculptor.Model
             //Camera initiation (nie ruszać kamery!!!) DOBRZE :)
             camera = new PerspectiveCamera();
             Camera.LookDirection = new Vector3D(0, 0, -1);
-            Camera.FieldOfView = 45;
+            Camera.FieldOfView = 30;
             Camera.UpDirection = new Vector3D(0, 1, 0);
             Camera.NearPlaneDistance = 1;
 
@@ -149,7 +149,7 @@ namespace Sculptor.Model
             int distance = Math.Max(width, height);
             distance = Math.Max(distance, length);
 
-            Camera.Position = new Point3D(0, 0, distance * 3);
+            Camera.Position = new Point3D(0, 0, distance * 4);
             Camera.FarPlaneDistance = distance * 6;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(camera)));
         }
@@ -176,34 +176,95 @@ namespace Sculptor.Model
             double aX = Math.Tan(Math.PI / 2 + Camera.FieldOfView / 360 * Math.PI * point.X / (viewportHeight / 2));
             double aY = Math.Tan(Math.PI / 2 + Camera.FieldOfView / 360 * Math.PI * point.Y / (viewportHeight / 2));
 
-            double xAngle = -xAxis.Angle / 180 * Math.PI;
-            double yAngle = -yAxis.Angle / 180 * Math.PI;
+            double xAngle = -xAxis.Angle * Math.PI / 180;
+            double yAngle = -yAxis.Angle * Math.PI / 180;
 
             double z0 = Camera.Position.Z;// + (double)Length / 2;
-            double bx = z0 * (Math.Cos(yAngle) + aX * Math.Sin(yAngle));
-            double by = z0 * (Math.Cos(xAngle) + aY * Math.Sin(xAngle));
-            double ax = (-z0 / aX * Math.Sin(yAngle) - z0 * Math.Cos(yAngle)) / (-z0 / aX * Math.Cos(yAngle) + z0 * Math.Sin(yAngle));
-            double ay = (-z0 / aY * Math.Sin(xAngle) - z0 * Math.Cos(xAngle)) / (-z0 / aY * Math.Cos(xAngle) + z0 * Math.Sin(xAngle));
+            double ax = aX; //(-z0 / aX * Math.Sin(yAngle) - z0 * Math.Cos(yAngle)) / (-z0 / aX * Math.Cos(yAngle) + z0 * Math.Sin(yAngle));
+            double ay = aY; //(-z0 / aY * Math.Sin(xAngle) - z0 * Math.Cos(xAngle)) / (-z0 / aY * Math.Cos(xAngle) + z0 * Math.Sin(xAngle));
+            double bx = z0;// * (Math.Cos(yAngle) + ax * Math.Sin(yAngle));
+            double by = z0;// * (Math.Cos(xAngle) + ay * Math.Sin(xAngle));
 
-            int x = 0;
-            int y = 0;
-            int z = (int)Math.Round(Camera.Position.Z);// - Length / 2;
+            int x = 0, y = 0, z = 0;
+            int i = (int)Math.Round(Camera.Position.Z);
 
-            while (!CheckBounds(x, y, z) || !helperGrid[x, y, z])
+            do
             {
-                z--;
-                if (z < -Length)
+                i--;
+                if (i < -Length)
                     return;
-                x = (int)Math.Round((z - bx) / ax + (double)Width / 2);
-                y = (int)Math.Round((z - by) / ay + (double)Height / 2);
-            }
+                newCoordinates(ref x, ref y, ref z, ax, ay, bx, by, xAxis.Angle, yAxis.Angle, i);
+            } while (!CheckBounds(x, y, z) || !helperGrid[x, y, z]);
             grid[x, y, z] = false;
             
             UpdateModel();
         }
-        public void EndSculpturing()
+
+        void newCoordinates(ref int x, ref int y, ref int z, double ax, double ay, double bx, double by, double xAngle, double yAngle, int i)
         {
-            helperGrid = null;
+            if (xAngle % 360 == 0)
+            {
+                if (yAngle % 360 == 0)
+                {
+                    x = (int)Math.Round((i - bx) / ax + (double)Width / 2);
+                    y = (int)Math.Round((i - by) / ay + (double)Height / 2);
+                    z = i;
+                    return;
+                }
+                if (yAngle % 360 == 90 || yAngle % 360 == -270)
+                {
+                    x = -i;
+                    y = (int)Math.Round((-i - by) / ay + (double)Height / 2);
+                    z = (int)Math.Round((-i - bx) / ax + (double)Length / 2);
+                    return;
+                }
+                if (yAngle % 360 == 180 || yAngle % 360 == -180)
+                {
+                    x = (int)Math.Round((-i - bx) / -ax + (double)Width / 2);
+                    y = (int)Math.Round((-i - by) / ay + (double)Height / 2);
+                    z = -i;
+                    return;
+                }
+                if (yAngle % 360 == 270 || yAngle % 360 == -90)
+                {
+                    x = i;
+                    y = (int)Math.Round((i - by) / ay + (double)Height / 2);
+                    z = (int)Math.Round((i - bx) / -ax + (double)Length / 2);
+                    return;
+                }
+            }
+            if (xAngle % 360 == 90 || xAngle % 360 == -270)
+            {
+                if (yAngle % 360 == 0)
+                {
+                    x = (int)Math.Round((i - bx) / ax + (double)Width / 2);
+                    y = i;
+                    z = (int)Math.Round((i - by) / ay + (double)Height / 2);
+                    return;
+                }
+                if (yAngle % 360 == 90 || yAngle % 360 == -270)
+                {
+                    x = (int)Math.Round((-i - by) / ay + (double)Height / 2);
+                    y = -i;
+                    z = (int)Math.Round((-i - bx) / ax + (double)Length / 2);
+                    return;
+                }
+                if (yAngle % 360 == 180 || yAngle % 360 == -180)
+                {
+                    x = (int)Math.Round((-i - bx) / -ax + (double)Width / 2);
+                    y = -i;
+                    z = (int)Math.Round((-i - by) / -ay + (double)Height / 2);
+                    return;
+                }
+                if (yAngle % 360 == 270 || yAngle % 360 == -90)
+                {
+                    x = (int)Math.Round((i - by) / ay + (double)Height / 2);
+                    y = i;
+                    z = (int)Math.Round((i - bx) / -ax + (double)Length / 2);
+                    return;
+                }
+            }
+            throw new Exception();
         }
 
         bool CheckBounds(int x, int y, int z)

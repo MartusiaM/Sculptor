@@ -31,7 +31,7 @@ namespace Sculptor
         private int defaultModelSize = 10;
 
         //obracanie modelu
-        float moveit = 1;//kat o jaki obracamy przy jednorazowym nacisnieciu strzalki
+        float moveit = 90;//kat o jaki obracamy przy jednorazowym nacisnieciu strzalki
         AxisAngleRotation3D xAxis;
         AxisAngleRotation3D yAxis;
         Transform3DGroup transforms;
@@ -260,11 +260,6 @@ namespace Sculptor
         {
             if (e.LeftButton == MouseButtonState.Pressed)
                 ModelGrid.Sculpt(e.GetPosition(viewport), viewport.ActualWidth, viewport.ActualHeight);
-        }
-
-        private void viewport_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            ModelGrid.EndSculpturing();
         }
     }
 }
