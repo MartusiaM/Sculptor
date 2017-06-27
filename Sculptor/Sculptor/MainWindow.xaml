@@ -48,8 +48,7 @@
                         Height="{Binding ActualHeight, ElementName=canvas}" 
                         Width="{Binding ActualWidth, ElementName=canvas}" 
                         MouseDown="viewport_MouseDown" 
-                        MouseMove="viewport_MouseMove" 
-                        MouseUp="viewport_MouseUp">
+                        MouseMove="viewport_MouseMove">
                 <Viewport3D.Children>
                     <!--<ModelVisual3D Content="{Binding ModelGrid.Model.Content, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"
                                    Transform="{Binding ModelGrid.Transforms, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>-->
