@@ -116,7 +116,7 @@ namespace Sculptor.Model
         }
         public ModelGrid ()
         {
-            //Camera initiation (nie ruszać kamery!!!) DOBRZE :)
+            //Camera initiation
             camera = new PerspectiveCamera();
             Camera.LookDirection = new Vector3D(0, 0, -1);
             Camera.FieldOfView = 45;
@@ -216,7 +216,7 @@ namespace Sculptor.Model
             DiffuseMaterial material = new DiffuseMaterial();
 
             SolidColorBrush brush = new SolidColorBrush();
-            brush.Color = Color.FromRgb(255, 0, 0);
+            brush.Color = Color.FromRgb(0, 255, 0);
             brush.Opacity = 1.0;
             material.Brush = brush;
 
