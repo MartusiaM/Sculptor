@@ -239,14 +239,14 @@ namespace Sculptor.Model
                 {
                     x = (int)Math.Round((i - bx) / ax + (double)Width / 2);
                     y = i;
-                    z = (int)Math.Round((i - by) / ay + (double)Height / 2);
+                    z = (int)Math.Round((i - by) / -ay + (double)Height / 2);
                     return;
                 }
                 if (yAngle % 360 == 90 || yAngle % 360 == -270)
                 {
-                    x = (int)Math.Round((-i - by) / ay + (double)Height / 2);
-                    y = -i;
-                    z = (int)Math.Round((-i - bx) / ax + (double)Length / 2);
+                    x = -i;
+                    y = (int)Math.Round((-i - by) / ax + (double)Height / 2);
+                    z = (int)Math.Round((-i - bx) / -ay + (double)Length / 2);
                     return;
                 }
                 if (yAngle % 360 == 180 || yAngle % 360 == -180)
@@ -258,9 +258,71 @@ namespace Sculptor.Model
                 }
                 if (yAngle % 360 == 270 || yAngle % 360 == -90)
                 {
-                    x = (int)Math.Round((i - by) / ay + (double)Height / 2);
-                    y = i;
+                    x = i;
+                    y = (int)Math.Round((i - by) / -ax + (double)Height / 2);
+                    z = (int)Math.Round((i - bx) / -ay + (double)Length / 2);
+                    return;
+                }
+            }
+            if (xAngle % 360 == 180 || xAngle % 360 == -180)
+            {
+                if (yAngle % 360 == 0)
+                {
+                    x = (int)Math.Round((-i - bx) / ax + (double)Width / 2);
+                    y = (int)Math.Round((-i - by) / -ay + (double)Height / 2);
+                    z = -i;
+                    return;
+                }
+                if (yAngle % 360 == 90 || yAngle % 360 == -270)
+                {
+                    x = -i;
+                    y = (int)Math.Round((i - by) / -ay + (double)Height / 2);
                     z = (int)Math.Round((i - bx) / -ax + (double)Length / 2);
+                    return;
+                }
+                if (yAngle % 360 == 180 || yAngle % 360 == -180)
+                {
+                    x = (int)Math.Round((i - bx) / -ax + (double)Width / 2);
+                    y = (int)Math.Round((i - by) / -ay + (double)Height / 2);
+                    z = i;
+                    return;
+                }
+                if (yAngle % 360 == 270 || yAngle % 360 == -90)
+                {
+                    x = i;
+                    y = (int)Math.Round((i - by) / -ay + (double)Height / 2);
+                    z = (int)Math.Round((i - bx) / ax + (double)Length / 2);
+                    return;
+                }
+            }
+            if (xAngle % 360 == -90 || xAngle % 360 == 270)
+            {
+                if (yAngle % 360 == 0)
+                {
+                    x = (int)Math.Round((i - bx) / ax + (double)Width / 2);
+                    y = -i;
+                    z = (int)Math.Round((i - by) / ay + (double)Height / 2);
+                    return;
+                }
+                if (yAngle % 360 == 90 || yAngle % 360 == -270)
+                {
+                    x = -i;
+                    y = (int)Math.Round((-i - by) / -ax + (double)Height / 2);
+                    z = (int)Math.Round((-i - bx) / ay + (double)Length / 2);
+                    return;
+                }
+                if (yAngle % 360 == 180 || yAngle % 360 == -180)
+                {
+                    x = (int)Math.Round((-i - bx) / -ax + (double)Width / 2);
+                    y = i;
+                    z = (int)Math.Round((-i - by) / ay + (double)Height / 2);
+                    return;
+                }
+                if (yAngle % 360 == 270 || yAngle % 360 == -90)
+                {
+                    x = i;
+                    y = (int)Math.Round((i - by) / ax + (double)Height / 2);
+                    z = (int)Math.Round((i - bx) / ay + (double)Length / 2);
                     return;
                 }
             }
